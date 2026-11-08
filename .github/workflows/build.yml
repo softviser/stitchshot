@@ -1,0 +1,96 @@
+# Builds both release executables from source. Runs when a version tag is pushed,
+# or by hand from the Actions tab.
+#
+# Signing starts once these are set under Settings > Secrets and variables > Actions:
+#   variable SIGNPATH_ORGANIZATION_ID, secret SIGNPATH_API_TOKEN
+# Until then the job still builds and uploads the executables, unsigned.
+name: Build
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content src/StitchShot.App/StitchShot.App.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v$version") {
+            throw "Tag $env:GITHUB_REF_NAME does not match project version $version"
+          }
+          "value=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Publish with .NET bundled
+        run: >
+          dotnet publish src/StitchShot.App -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -p:DebugType=none -o publish/full
+
+      - name: Publish for machines with .NET 8
+        run: >
+          dotnet publish src/StitchShot.App -c Release -r win-x64 --self-contained false
+          -p:PublishSingleFile=true -p:DebugType=none -o publish/small
+
+      - name: Name the executables
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          New-Item -ItemType Directory dist | Out-Null
+          Copy-Item publish/full/StitchShot.exe "dist/StitchShot-$env:VERSION-win-x64.exe"
+          Copy-Item publish/small/StitchShot.exe "dist/StitchShot-$env:VERSION-win-x64-requires-net8.exe"
+
+      - name: Upload unsigned executables
+        id: unsigned
+        uses: actions/upload-artifact@v7
+        with:
+          name: unsigned
+          path: dist/*.exe
+          if-no-files-found: error
+
+      - name: Sign with SignPath
+        if: vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: stitchshot
+          signing-policy-slug: release-signing
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          parameters: |
+            version: ${{ toJSON(steps.version.outputs.value) }}
+          # Every release waits for an approver in SignPath, so allow a day for it.
+          wait-for-completion-timeout-in-seconds: 86400
+          output-artifact-directory: signed
+
+      - name: Write checksums
+        shell: pwsh
+        run: |
+          $folder = if (Test-Path signed) { 'signed' } else { 'dist' }
+          New-Item -ItemType Directory release | Out-Null
+          Copy-Item "$folder/*.exe" release
+          Get-ChildItem release/*.exe | Sort-Object Name | ForEach-Object {
+            "$((Get-FileHash $_ -Algorithm SHA256).Hash.ToLower())  $($_.Name)"
+          } | Set-Content -Encoding ascii release/SHA256SUMS.txt
+
+      - name: Upload release files
+        uses: actions/upload-artifact@v7
+        with:
+          name: stitchshot-${{ steps.version.outputs.value }}
+          path: release/
+          if-no-files-found: error

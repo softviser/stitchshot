@@ -25,11 +25,13 @@ public sealed class OverlayWindow : Window
     readonly OverlayView _view;
     readonly Border _toolbar;
     readonly double _scale;
+    readonly bool _stitchMode;
     public Task<CaptureResult?> Result => _view.Result;
 
     // shortcut: one window spans all monitors, so mixed-DPI setups mis-scale secondary screens; upgrade to one window per monitor.
-    public OverlayWindow(SKBitmap frozen, ScreenRect desktop)
+    public OverlayWindow(SKBitmap frozen, ScreenRect desktop, bool stitchMode = false)
     {
+        _stitchMode = stitchMode;
         WindowDecorations = WindowDecorations.None;
         Topmost = true;
         ShowInTaskbar = false;
@@ -52,43 +54,26 @@ public sealed class OverlayWindow : Window
         _view.Done += () => Close();
     }
 
-    // Icon paths are Material Design Icons (Apache 2.0): content-save, content-copy, close.
-    const string SaveIcon = "M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z";
-    const string CopyIcon = "M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z";
-    const string CloseIcon = "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z";
-
     Border BuildToolbar()
     {
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2 };
-        row.Children.Add(ToolButton(SaveIcon, "Save to file (Enter)", () => _view.Confirm(save: true)));
-        row.Children.Add(ToolButton(CopyIcon, "Copy to clipboard (Ctrl+C)", () => _view.Confirm(save: false)));
-        row.Children.Add(ToolButton(CloseIcon, "Cancel (Esc)", _view.CancelAndClose));
+        if (_stitchMode)
+            row.Children.Add(IconButton.Create(IconButton.Layers, "Start stitching with this region (Enter)", () => _view.Confirm(save: true)));
+        else
+        {
+            row.Children.Add(IconButton.Create(IconButton.Save, "Save to file (Enter)", () => _view.Confirm(save: true)));
+            row.Children.Add(IconButton.Create(IconButton.Copy, "Copy to clipboard (Ctrl+C)", () => _view.Confirm(save: false)));
+        }
+        row.Children.Add(IconButton.Create(IconButton.Close, "Cancel (Esc)", _view.CancelAndClose));
         return new Border
         {
-            Background = new SolidColorBrush(Color.FromArgb(0xE6, 0x20, 0x20, 0x20)),
+            Background = IconButton.PanelBrush,
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(2),
             Cursor = new Cursor(StandardCursorType.Arrow),
             IsVisible = false,
             Child = row,
         };
-    }
-
-    static Button ToolButton(string iconPath, string tooltip, Action action)
-    {
-        var button = new Button
-        {
-            Content = new PathIcon { Data = Geometry.Parse(iconPath), Width = 14, Height = 14 },
-            Padding = new Thickness(5),
-            MinWidth = 0,
-            MinHeight = 0,
-            Background = Brushes.Transparent,
-            Foreground = Brushes.White, // the panel is dark whatever the OS theme says
-        };
-        ToolTip.SetTip(button, tooltip);
-        ToolTip.SetShowDelay(button, 300);
-        button.Click += (_, _) => action();
-        return button;
     }
 
     void PlaceToolbar(PixelRect? selection)

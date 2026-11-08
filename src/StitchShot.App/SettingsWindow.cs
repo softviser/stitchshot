@@ -1,38 +1,40 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using StitchShot.Core;
 
 namespace StitchShot.App;
 
-/// <summary>Save folder, hotkeys and clipboard option. Hotkey boxes record the next key combination pressed in them.</summary>
+/// <summary>Save folder, hotkeys and stitch options. Hotkey boxes record the next key combination pressed in them.</summary>
 public sealed class SettingsWindow : Window
 {
     readonly Settings _settings;
-    readonly TextBox _folder, _regionKey, _fullKey;
-    readonly CheckBox _clipboard;
+    readonly TextBox _folder;
+    readonly CheckBox _clipboard, _trimOverlap;
+    readonly NumericUpDown _cropTop, _scrollDelay;
+    readonly List<(TextBox Box, Action<string> Apply)> _hotkeys = new();
 
     /// <summary>Raised after the user saves; the app re-reads the settings object it passed in.</summary>
     public event Action? Saved;
 
-    public SettingsWindow(Settings settings)
+    public SettingsWindow(Settings s)
     {
-        _settings = settings;
+        _settings = s;
         Title = "StitchShot settings";
-        Width = 460;
+        Width = 480;
         SizeToContent = SizeToContent.Height;
         CanResize = false;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-        _folder = new TextBox { Text = settings.SaveFolder };
-        _regionKey = HotkeyBox(settings.RegionHotkey);
-        _fullKey = HotkeyBox(settings.FullScreenHotkey);
-        _clipboard = new CheckBox { Content = "Also copy every capture to the clipboard", IsChecked = settings.CopyToClipboard };
+        var form = new StackPanel { Margin = new Thickness(16), Spacing = 6 };
 
+        _folder = new TextBox { Text = s.SaveFolder };
         var browse = new Button { Content = "Browse…" };
         browse.Click += async (_, _) =>
         {
@@ -43,33 +45,61 @@ public sealed class SettingsWindow : Window
         folderRow.Children.Add(_folder);
         Grid.SetColumn(browse, 1);
         folderRow.Children.Add(browse);
+        Section(form, "Save screenshots to");
+        form.Children.Add(folderRow);
+        _clipboard = new CheckBox { Content = "Also copy every capture to the clipboard", IsChecked = s.CopyToClipboard };
+        form.Children.Add(_clipboard);
 
-        var save = new Button { Content = "Save", IsDefault = true, HorizontalAlignment = HorizontalAlignment.Right };
+        Section(form, "Hotkeys");
+        form.Children.Add(new TextBlock { Text = "Click a box and press the combination you want.", Opacity = 0.6, FontSize = 12 });
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*"), ColumnSpacing = 10, RowSpacing = 4 };
+        Hotkey(grid, "Capture region", s.RegionHotkey, v => s.RegionHotkey = v);
+        Hotkey(grid, "Capture full screen", s.FullScreenHotkey, v => s.FullScreenHotkey = v);
+        Hotkey(grid, "Start stitch / add region", s.StitchStartHotkey, v => s.StitchStartHotkey = v);
+        Hotkey(grid, "Stitch: capture frame", s.StitchCaptureHotkey, v => s.StitchCaptureHotkey = v);
+        Hotkey(grid, "Stitch: Page Down + capture", s.StitchScrollCaptureHotkey, v => s.StitchScrollCaptureHotkey = v);
+        Hotkey(grid, "Stitch: finish and save", s.StitchFinishHotkey, v => s.StitchFinishHotkey = v);
+        form.Children.Add(grid);
+
+        Section(form, "Stitching");
+        _trimOverlap = new CheckBox { Content = "Trim the overlap between scrolled frames", IsChecked = s.TrimOverlap };
+        form.Children.Add(_trimOverlap);
+        _cropTop = Number(s.CropTop, 0, 2000);
+        form.Children.Add(Labeled("Crop this many pixels from the top of frames 2+ (sticky headers)", _cropTop));
+        _scrollDelay = Number(s.ScrollDelayMs, 0, 5000);
+        form.Children.Add(Labeled("Wait after Page Down, milliseconds", _scrollDelay));
+
+        var save = new Button { Content = "Save", IsDefault = true };
         save.Click += (_, _) => SaveAndClose();
         var cancel = new Button { Content = "Cancel", IsCancel = true };
         cancel.Click += (_, _) => Close();
-        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, HorizontalAlignment = HorizontalAlignment.Right };
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 16, 0, 0) };
         buttons.Children.Add(save);
         buttons.Children.Add(cancel);
-
-        var form = new StackPanel { Margin = new Thickness(16), Spacing = 6 };
-        form.Children.Add(new TextBlock { Text = "Save screenshots to" });
-        form.Children.Add(folderRow);
-        form.Children.Add(new TextBlock { Text = "Region capture hotkey", Margin = new Thickness(0, 10, 0, 0) });
-        form.Children.Add(_regionKey);
-        form.Children.Add(new TextBlock { Text = "Full screen hotkey", Margin = new Thickness(0, 10, 0, 0) });
-        form.Children.Add(_fullKey);
-        form.Children.Add(new TextBlock { Text = "Click a hotkey box and press the combination you want.", Opacity = 0.6, FontSize = 12 });
-        form.Children.Add(_clipboard);
-        _clipboard.Margin = new Thickness(0, 10, 0, 0);
-        form.Children.Add(new TextBlock { Text = $"Log file: {Log.Path}", Opacity = 0.6, FontSize = 11, Margin = new Thickness(0, 10, 0, 0), TextWrapping = Avalonia.Media.TextWrapping.Wrap });
-        buttons.Margin = new Thickness(0, 16, 0, 0);
         form.Children.Add(buttons);
+        form.Children.Add(new TextBlock { Text = $"Log file: {Log.Path}", Opacity = 0.5, FontSize = 11, TextWrapping = TextWrapping.Wrap });
         Content = form;
     }
 
-    static TextBox HotkeyBox(string current)
+    static void Section(Panel form, string title) =>
+        form.Children.Add(new TextBlock { Text = title, FontWeight = FontWeight.SemiBold, Margin = new Thickness(0, 10, 0, 0) });
+
+    static NumericUpDown Number(int value, int min, int max) =>
+        new() { Value = value, Minimum = min, Maximum = max, Increment = 1, FormatString = "0", Width = 110, HorizontalAlignment = HorizontalAlignment.Left };
+
+    static Control Labeled(string label, Control input)
     {
+        var row = new StackPanel { Spacing = 2 };
+        row.Children.Add(new TextBlock { Text = label, FontSize = 12 });
+        row.Children.Add(input);
+        return row;
+    }
+
+    void Hotkey(Grid grid, string label, string current, Action<string> apply)
+    {
+        int row = grid.RowDefinitions.Count;
+        grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+        var text = new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center };
         var box = new TextBox { Text = current, IsReadOnly = true, PlaceholderText = "Press keys…" };
         box.KeyDown += (_, e) =>
         {
@@ -82,7 +112,12 @@ public sealed class SettingsWindow : Window
                 Alt: e.KeyModifiers.HasFlag(KeyModifiers.Alt),
                 Win: e.KeyModifiers.HasFlag(KeyModifiers.Meta)).ToString();
         };
-        return box;
+        Grid.SetRow(text, row);
+        Grid.SetRow(box, row);
+        Grid.SetColumn(box, 1);
+        grid.Children.Add(text);
+        grid.Children.Add(box);
+        _hotkeys.Add((box, apply));
     }
 
     /// <summary>Avalonia key names mostly match SharpHook's Vc* names; digits and PrintScreen need help.</summary>
@@ -97,15 +132,18 @@ public sealed class SettingsWindow : Window
 
     void SaveAndClose()
     {
-        foreach (var box in new[] { _regionKey, _fullKey })
+        var seen = new HashSet<string>();
+        foreach (var (box, _) in _hotkeys)
         {
-            try { HotkeyBinding.Parse(box.Text ?? ""); }
-            catch (FormatException) { box.Focus(); return; }
+            try { if (!seen.Add(HotkeyBinding.Parse(box.Text ?? "").ToString())) throw new FormatException("duplicate"); }
+            catch (FormatException) { box.Focus(); box.SelectAll(); return; } // leave the offending box focused
         }
+        foreach (var (box, apply) in _hotkeys) apply(box.Text!);
         _settings.SaveFolder = string.IsNullOrWhiteSpace(_folder.Text) ? ImageSaver.DefaultFolder : _folder.Text.Trim();
-        _settings.RegionHotkey = _regionKey.Text!;
-        _settings.FullScreenHotkey = _fullKey.Text!;
         _settings.CopyToClipboard = _clipboard.IsChecked == true;
+        _settings.TrimOverlap = _trimOverlap.IsChecked == true;
+        _settings.CropTop = (int)(_cropTop.Value ?? 0);
+        _settings.ScrollDelayMs = (int)(_scrollDelay.Value ?? 400);
         _settings.Save();
         Saved?.Invoke();
         Close();

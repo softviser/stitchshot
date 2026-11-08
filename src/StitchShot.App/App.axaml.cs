@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using SharpHook;
 using SharpHook.Data;
+using SharpHook.Simulation;
 using SkiaSharp;
 using StitchShot.Core;
 using StitchShot.Platform.Windows;
@@ -18,14 +20,20 @@ namespace StitchShot.App;
 public partial class App : Application
 {
     readonly Settings _settings = Settings.Load();
-    HotkeyBinding _regionKey = null!, _fullScreenKey = null!;
+    readonly List<(HotkeyBinding Key, Action Action)> _hotkeys = new();
 
     IScreenCapturer _capturer = null!;
     IImageClipboard _clipboard = null!;
     SimpleGlobalHook? _hook;
+    readonly EventSimulator _simulator = EventSimulator.Create("StitchShot");
     TrayIcon? _tray;
     OverlayWindow? _overlay;
     SettingsWindow? _settingsWindow;
+
+    // Stitch session: the region in absolute screen pixels, the frames collected so far, and the HUD.
+    ScreenRect _stitchRegion;
+    StitchComposer? _stitch;
+    HudWindow? _hud;
 
     public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
@@ -40,6 +48,7 @@ public partial class App : Application
         var menu = new NativeMenu();
         menu.Items.Add(MenuItem("Capture region", () => _ = CaptureRegionAsync()));
         menu.Items.Add(MenuItem("Capture full screen", CaptureFullScreen));
+        menu.Items.Add(MenuItem("Start stitch session", () => _ = StartStitchAsync()));
         menu.Items.Add(new NativeMenuItemSeparator());
         menu.Items.Add(MenuItem("Open screenshots folder", () =>
         {
@@ -70,14 +79,20 @@ public partial class App : Application
 
     void ApplyHotkeys()
     {
-        _regionKey = HotkeyBinding.Parse(_settings.RegionHotkey);
-        _fullScreenKey = HotkeyBinding.Parse(_settings.FullScreenHotkey);
+        _hotkeys.Clear();
+        _hotkeys.Add((HotkeyBinding.Parse(_settings.RegionHotkey), () => _ = CaptureRegionAsync()));
+        _hotkeys.Add((HotkeyBinding.Parse(_settings.FullScreenHotkey), CaptureFullScreen));
+        _hotkeys.Add((HotkeyBinding.Parse(_settings.StitchStartHotkey), () => _ = StartStitchAsync()));
+        _hotkeys.Add((HotkeyBinding.Parse(_settings.StitchCaptureHotkey), StitchCapture));
+        _hotkeys.Add((HotkeyBinding.Parse(_settings.StitchScrollCaptureHotkey), () => _ = StitchScrollCaptureAsync()));
+        _hotkeys.Add((HotkeyBinding.Parse(_settings.StitchFinishHotkey), StitchFinish));
     }
 
     void UpdateTooltip(string? status = null)
     {
         if (_tray is null) return;
-        _tray.ToolTipText = $"StitchShot\n{_regionKey}: capture region\n{_fullScreenKey}: full screen" + (status is null ? "" : $"\n{status}");
+        _tray.ToolTipText = $"StitchShot\n{_settings.RegionHotkey}: capture region\n{_settings.FullScreenHotkey}: full screen\n{_settings.StitchStartHotkey}: start stitch session"
+            + (status is null ? "" : $"\n{status}");
     }
 
     static NativeMenuItem MenuItem(string header, Action action)
@@ -98,13 +113,15 @@ public partial class App : Application
 
     void OnKeyPressed(object? sender, KeyboardHookEventArgs e)
     {
-        Action? action = Matches(_regionKey, e) ? () => _ = CaptureRegionAsync()
-                       : Matches(_fullScreenKey, e) ? CaptureFullScreen
-                       : null;
-        if (action is null) return;
-        e.SuppressEvent = true;
-        // Typing a new hotkey into the settings window must not trigger a capture.
-        Dispatcher.UIThread.Post(() => { if (_settingsWindow?.IsActive != true) action(); });
+        if (e.IsEventSimulated) return; // our own Page Down
+        foreach (var (key, action) in _hotkeys)
+        {
+            if (!Matches(key, e)) continue;
+            e.SuppressEvent = true;
+            // Typing a new hotkey into the settings window must not trigger a capture.
+            Dispatcher.UIThread.Post(() => { if (_settingsWindow?.IsActive != true) action(); });
+            return;
+        }
     }
 
     static bool Matches(HotkeyBinding b, KeyboardHookEventArgs e)
@@ -117,18 +134,28 @@ public partial class App : Application
             && (m & EventMask.Meta) != 0 == b.Win;
     }
 
-    async Task CaptureRegionAsync()
+    /// <summary>Freezes the screen and lets the user pick a region. Returns the frozen desktop and the choice (null when cancelled).</summary>
+    async Task<(SKBitmap Frozen, ScreenRect Desktop, CaptureResult? Result)?> PickRegionAsync(bool stitchMode)
     {
-        if (_overlay is not null) return;
+        if (_overlay is not null) return null;
+        var desktop = _capturer.VirtualDesktop;
+        var frozen = _capturer.Capture(desktop);
         try
         {
-            var desktop = _capturer.VirtualDesktop;
-            using var frozen = _capturer.Capture(desktop);
-            _overlay = new OverlayWindow(frozen, desktop);
+            _overlay = new OverlayWindow(frozen, desktop, stitchMode);
             _overlay.Show();
-            var result = await _overlay.Result;
-            _overlay = null;
-            if (result is null) return;
+            return (frozen, desktop, await _overlay.Result);
+        }
+        finally { _overlay = null; }
+    }
+
+    async Task CaptureRegionAsync()
+    {
+        try
+        {
+            if (await PickRegionAsync(stitchMode: false) is not { } pick) return;
+            using var frozen = pick.Frozen;
+            if (pick.Result is not { } result) return;
             using var crop = ImageSaver.Crop(frozen, result.Region);
             if (result.Save) SaveAndCopy(crop);
             else { _clipboard.SetImage(crop); UpdateTooltip("Copied to clipboard"); }
@@ -146,6 +173,83 @@ public partial class App : Application
         catch (Exception ex) { Report(ex); }
     }
 
+    // ---- stitch session ----
+
+    /// <summary>Starts a session, or when one is running, lets the user pick a new region and adds it as the next frame.</summary>
+    async Task StartStitchAsync()
+    {
+        try
+        {
+            if (await PickRegionAsync(stitchMode: true) is not { } pick) return;
+            using var frozen = pick.Frozen;
+            if (pick.Result is not { } result) return;
+            var r = result.Region;
+            _stitchRegion = new ScreenRect(pick.Desktop.X + r.X, pick.Desktop.Y + r.Y, r.Width, r.Height);
+            if (_stitch is null)
+            {
+                _stitch = new StitchComposer { TrimOverlap = _settings.TrimOverlap, CropTop = _settings.CropTop };
+                _hud = new HudWindow(_settings, StitchCapture, () => _ = StitchScrollCaptureAsync(), StitchUndo,
+                    () => _ = StartStitchAsync(), StitchFinish, StitchCancel);
+                _hud.Show();
+            }
+            _stitch.Add(ImageSaver.Crop(frozen, r));
+            _hud!.Update(_stitch);
+        }
+        catch (Exception ex) { Report(ex); }
+    }
+
+    void StitchCapture()
+    {
+        if (_stitch is null) { UpdateTooltip($"No stitch session. Start one with {_settings.StitchStartHotkey}."); return; }
+        try
+        {
+            _stitch.Add(_capturer.Capture(_stitchRegion));
+            _hud?.Update(_stitch);
+        }
+        catch (Exception ex) { Report(ex); }
+    }
+
+    async Task StitchScrollCaptureAsync()
+    {
+        if (_stitch is null) { StitchCapture(); return; }
+        _simulator.SimulateKeyPress(KeyCode.VcPageDown);
+        _simulator.SimulateKeyRelease(KeyCode.VcPageDown);
+        await Task.Delay(_settings.ScrollDelayMs); // let smooth scrolling settle
+        StitchCapture();
+    }
+
+    void StitchUndo()
+    {
+        if (_stitch is null) return;
+        _stitch.Undo();
+        _hud?.Update(_stitch);
+    }
+
+    void StitchFinish()
+    {
+        if (_stitch is null) return;
+        try
+        {
+            if (_stitch.Count > 0)
+            {
+                using var image = _stitch.Compose();
+                SaveAndCopy(image);
+            }
+        }
+        catch (Exception ex) { Report(ex); }
+        finally { StitchCancel(); }
+    }
+
+    void StitchCancel()
+    {
+        _stitch?.Dispose();
+        _stitch = null;
+        _hud?.Close();
+        _hud = null;
+    }
+
+    // ---- output ----
+
     public void SaveAndCopy(SKBitmap bitmap)
     {
         var path = ImageSaver.SavePng(bitmap, _settings.SaveFolder, DateTime.Now);
@@ -153,10 +257,9 @@ public partial class App : Application
         UpdateTooltip($"Saved {Path.GetFileName(path)}");
     }
 
-    // shortcut: no notification UI yet, so errors land in the tray tooltip and the log; replace when the HUD exists.
+    // shortcut: no notification UI yet, so errors land in the tray tooltip and the log; replace when a toast exists.
     void Report(Exception ex)
     {
-        _overlay = null;
         Log.Write(ex.ToString());
         UpdateTooltip($"Error: {ex.Message}");
     }

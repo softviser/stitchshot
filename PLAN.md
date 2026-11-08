@@ -54,7 +54,7 @@ Core must not reference Avalonia or any platform project.
   rows of the previous one, drop the overlap. Needed because Page Down scrolls less
   than a full viewport.
 - "Crop top N px on frames 2+" for sticky headers. Automatic detection is v1.1.
-- Helper key: send Page Down, wait a moment, capture.
+- Helper key (F10): send Page Down, wait a moment (configurable), capture.
 - Undo last frame, Finish (opens editor or saves straight away), Cancel.
 
 ### Editor
@@ -70,8 +70,8 @@ Core must not reference Avalonia or any platform project.
 - Every key rebindable from Settings with a press-to-record control and conflict
   warning.
 - Defaults: PrintScreen region, Ctrl+PrtSc full screen, Alt+PrtSc active window,
-  Ctrl+Shift+S start stitch, F8 stitch capture, F9 finish, Ctrl+Shift+R repeat
-  last region.
+  Ctrl+Shift+S start stitch (or add a new region to the running session), F8 stitch
+  capture, F10 Page Down + capture, F9 finish, Ctrl+Shift+R repeat last region.
 - If PrintScreen can't be registered (Windows Snipping Tool owns it), say so and
   point at the Windows setting.
 - HUD: frameless, always on top, draggable, remembers position, optional

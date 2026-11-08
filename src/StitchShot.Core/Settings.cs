@@ -9,6 +9,16 @@ public sealed class Settings
     public string FullScreenHotkey { get; set; } = "Ctrl+PrintScreen";
     public bool CopyToClipboard { get; set; } = true;
 
+    public string StitchStartHotkey { get; set; } = "Ctrl+Shift+S";
+    public string StitchCaptureHotkey { get; set; } = "F8";
+    public string StitchScrollCaptureHotkey { get; set; } = "F10";
+    public string StitchFinishHotkey { get; set; } = "F9";
+    public bool TrimOverlap { get; set; } = true;
+    public int CropTop { get; set; }
+    public int ScrollDelayMs { get; set; } = 400;
+    public int? HudX { get; set; }
+    public int? HudY { get; set; }
+
     public static string DefaultPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StitchShot", "settings.json");
 

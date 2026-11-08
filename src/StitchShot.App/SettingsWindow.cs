@@ -23,10 +23,11 @@ public sealed class SettingsWindow : Window
     /// <summary>Raised after the user saves; the app re-reads the settings object it passed in.</summary>
     public event Action? Saved;
 
-    public SettingsWindow(Settings s)
+    public SettingsWindow(Settings s, IStartupRegistration startup)
     {
         _settings = s;
         Title = "StitchShot settings";
+        Icon = TrayIconImage.Create();
         Width = 480;
         SizeToContent = SizeToContent.Height;
         CanResize = false;
@@ -49,6 +50,13 @@ public sealed class SettingsWindow : Window
         form.Children.Add(folderRow);
         _clipboard = new CheckBox { Content = "Also copy every capture to the clipboard", IsChecked = s.CopyToClipboard };
         form.Children.Add(_clipboard);
+        var startWithOs = new CheckBox { Content = "Start StitchShot when I log in to Windows", IsChecked = startup.Enabled };
+        startWithOs.IsCheckedChanged += (_, _) =>
+        {
+            try { startup.Enabled = startWithOs.IsChecked == true; }
+            catch (Exception ex) { Log.Write(ex.ToString()); ToastWindow.Show("Could not change startup setting", ex.Message); }
+        };
+        form.Children.Add(startWithOs);
 
         Section(form, "Hotkeys");
         form.Children.Add(new TextBlock { Text = "Click a box and press the combination you want.", Opacity = 0.6, FontSize = 12 });
@@ -80,6 +88,14 @@ public sealed class SettingsWindow : Window
         buttons.Children.Add(save);
         buttons.Children.Add(cancel);
         form.Children.Add(buttons);
+
+        Section(form, "About");
+        var version = typeof(SettingsWindow).Assembly.GetName().Version?.ToString(3) ?? "dev";
+        form.Children.Add(new TextBlock { Text = $"StitchShot {version} · Softviser Yazılım · MIT license", FontSize = 12 });
+        var links = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12 };
+        links.Children.Add(new HyperlinkButton { Content = "softviser.com.tr", NavigateUri = new Uri("https://softviser.com.tr"), Padding = new Thickness(0) });
+        links.Children.Add(new HyperlinkButton { Content = "github.com/softviser/stitchshot", NavigateUri = new Uri("https://github.com/softviser/stitchshot"), Padding = new Thickness(0) });
+        form.Children.Add(links);
         form.Children.Add(new TextBlock { Text = $"Log file: {Log.Path}", Opacity = 0.5, FontSize = 11, TextWrapping = TextWrapping.Wrap });
         Content = form;
     }

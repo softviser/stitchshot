@@ -22,6 +22,7 @@ public sealed class HelpWindow : Window
     HelpWindow()
     {
         Title = "StitchShot help";
+        Icon = TrayIconImage.Create();
         Width = 660;
         Height = 560;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;

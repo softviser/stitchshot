@@ -25,15 +25,15 @@ public sealed class ToastWindow : Window
     readonly DispatcherTimer _timer;
     bool _moved;
 
-    public static void Show(string title, string detail, SKBitmap? preview = null, string? path = null)
+    public static void Show(string title, string detail, SKBitmap? preview = null, string? path = null, Action? edit = null)
     {
         _current?.Close();
-        _current = new ToastWindow(title, detail, preview, path);
+        _current = new ToastWindow(title, detail, preview, path, edit);
         _current.Closed += (s, _) => { if (ReferenceEquals(_current, s)) _current = null; };
         _current.Show();
     }
 
-    ToastWindow(string title, string detail, SKBitmap? preview, string? path)
+    ToastWindow(string title, string detail, SKBitmap? preview, string? path, Action? edit)
     {
         WindowDecorations = WindowDecorations.None;
         Topmost = true;
@@ -56,6 +56,7 @@ public sealed class ToastWindow : Window
                 Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
                 Close();
             }));
+        if (edit is not null) row.Children.Add(IconButton.Create(IconButton.Pencil, "Annotate in the editor", () => { edit(); Close(); }));
         row.Children.Add(IconButton.Create(IconButton.Close, "Dismiss", Close));
 
         var panel = new Border

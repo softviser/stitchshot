@@ -54,8 +54,25 @@ to the header height so frames 2+ start below it.
 "Wait after Page Down" is for pages with smooth scrolling; raise it if frames
 come out mid-scroll.
 
+## Editor
+
+Press E in the overlay (or the pencil icon) instead of Enter, or click the pencil
+on a "Saved" notification, to annotate before saving.
+
+  R rectangle   O ellipse   L line   D dashed line   A arrow   P pen
+  T text        X pixelate  C crop
+  Shift while dragging keeps squares and circles and snaps lines to 45 degrees.
+  Text: click where it starts, type, Enter places it (Shift+Enter = new line).
+  Crop: drag the part to keep; everything outside is dropped on export.
+  Ctrl+Z / Ctrl+Y undo and redo, Ctrl+S saves and closes, Ctrl+C copies, Esc closes.
+
+The colour swatches and the stroke width apply to the next mark; text size is six
+times the stroke width.
+
 ## Settings
 
+  Start with Windows       registers StitchShot in the per-user startup list.
+                           Asked once on the first run, changeable here any time.
   Save screenshots to      folder for PNGs. Files are named StitchShot_date_time.png.
   Copy to clipboard        also put every capture on the clipboard.
   Hotkeys                  click a box, press the combination. Duplicates are refused

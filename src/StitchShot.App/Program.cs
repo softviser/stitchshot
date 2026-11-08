@@ -12,7 +12,7 @@ class Program
         // Headless path: `StitchShot --fullscreen` saves the whole desktop and exits. Handy for scripts and smoke tests.
         if (args is ["--fullscreen"])
         {
-            var (capturer, clipboard) = App.CreatePlatform();
+            var (capturer, clipboard, _) = App.CreatePlatform();
             using var shot = capturer.Capture(capturer.VirtualDesktop);
             var path = ImageSaver.SavePng(shot, Settings.Load().SaveFolder, DateTime.Now);
             clipboard.SetImage(shot);

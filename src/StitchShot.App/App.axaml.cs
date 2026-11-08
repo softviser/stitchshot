@@ -19,11 +19,13 @@ namespace StitchShot.App;
 
 public partial class App : Application
 {
+    readonly bool _firstRun = !File.Exists(Settings.DefaultPath);
     readonly Settings _settings = Settings.Load();
     readonly List<(HotkeyBinding Key, Action Action)> _hotkeys = new();
 
     IScreenCapturer _capturer = null!;
     IImageClipboard _clipboard = null!;
+    IStartupRegistration _startup = null!;
     SimpleGlobalHook? _hook;
     readonly EventSimulator _simulator = EventSimulator.Create("StitchShot");
     TrayIcon? _tray;
@@ -42,7 +44,7 @@ public partial class App : Application
         if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) return;
         Log.Write($"starting, shutdown mode {desktop.ShutdownMode}");
         desktop.Exit += (_, e) => Log.Write($"exit code {e.ApplicationExitCode}");
-        (_capturer, _clipboard) = CreatePlatform();
+        (_capturer, _clipboard, _startup) = CreatePlatform();
         ToastWindow.Settings = _settings;
         ApplyHotkeys();
 
@@ -70,12 +72,13 @@ public partial class App : Application
         _hook.KeyPressed += OnKeyPressed;
         _hook.RunAsync(GlobalHookType.Keyboard).ContinueWith(t => Log.Write($"hook stopped: {t.Exception?.GetBaseException().Message ?? "ok"}"));
         Log.Write("tray and hook up");
+        if (_firstRun) new FirstRunWindow(_settings, _startup).Show();
         base.OnFrameworkInitializationCompleted();
     }
 
-    public static (IScreenCapturer, IImageClipboard) CreatePlatform()
+    public static (IScreenCapturer, IImageClipboard, IStartupRegistration) CreatePlatform()
     {
-        if (OperatingSystem.IsWindows()) return (new GdiScreenCapturer(), new WindowsImageClipboard());
+        if (OperatingSystem.IsWindows()) return (new GdiScreenCapturer(), new WindowsImageClipboard(), new WindowsStartupRegistration());
         throw new PlatformNotSupportedException("StitchShot currently captures on Windows only; Linux and macOS are planned.");
     }
 
@@ -106,7 +109,7 @@ public partial class App : Application
     void OpenSettings()
     {
         if (_settingsWindow is not null) { _settingsWindow.Activate(); return; }
-        _settingsWindow = new SettingsWindow(_settings);
+        _settingsWindow = new SettingsWindow(_settings, _startup);
         _settingsWindow.Saved += () => { ApplyHotkeys(); UpdateTooltip(); };
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
@@ -160,11 +163,11 @@ public partial class App : Application
             var r = result.Region;
             using var crop = ImageSaver.Crop(frozen, r);
             FlashWindow.Show(new ScreenRect(pick.Desktop.X + r.X, pick.Desktop.Y + r.Y, r.Width, r.Height));
-            if (result.Save) SaveAndCopy(crop);
-            else
+            switch (result.Action)
             {
-                _clipboard.SetImage(crop);
-                ToastWindow.Show("Copied to clipboard", "Paste it with Ctrl+V. Nothing was saved to disk.", crop);
+                case CaptureAction.Save: SaveAndCopy(crop); break;
+                case CaptureAction.Edit: OpenEditor(crop.Copy()); break;
+                default: CopyOnly(crop); break;
             }
         }
         catch (Exception ex) { Report(ex); }
@@ -260,12 +263,27 @@ public partial class App : Application
 
     // ---- output ----
 
+    void OpenEditor(SKBitmap image)
+    {
+        // The editor's save always copies too, whatever the capture setting says: an edited image is about to be pasted somewhere.
+        var editor = new EditorWindow(image, img => { SaveAndCopy(img); if (!_settings.CopyToClipboard) _clipboard.SetImage(img); }, CopyOnly);
+        editor.Closed += (_, _) => image.Dispose();
+        editor.Show();
+    }
+
+    void CopyOnly(SKBitmap bitmap)
+    {
+        _clipboard.SetImage(bitmap);
+        ToastWindow.Show("Copied to clipboard", "Paste it with Ctrl+V. Nothing was saved to disk.", bitmap);
+    }
+
     public void SaveAndCopy(SKBitmap bitmap)
     {
         var path = ImageSaver.SavePng(bitmap, _settings.SaveFolder, DateTime.Now);
         if (_settings.CopyToClipboard) _clipboard.SetImage(bitmap);
         ToastWindow.Show($"Saved {Path.GetFileName(path)}",
-            (_settings.CopyToClipboard ? "Also copied to the clipboard. " : "") + "Click to show it in the folder.", bitmap, path);
+            (_settings.CopyToClipboard ? "Also copied to the clipboard. " : "") + "Click to show it in the folder.", bitmap, path,
+            edit: () => { if (SKBitmap.Decode(path) is { } img) OpenEditor(img); });
     }
 
     void Report(Exception ex)

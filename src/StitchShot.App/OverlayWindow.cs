@@ -14,7 +14,9 @@ using StitchShot.Core;
 namespace StitchShot.App;
 
 /// <summary>What the user chose in the overlay. Region is in bitmap pixel coordinates.</summary>
-public sealed record CaptureResult(ScreenRect Region, bool Save);
+public enum CaptureAction { Save, Copy, Edit }
+
+public sealed record CaptureResult(ScreenRect Region, CaptureAction Action);
 
 /// <summary>
 /// Full-screen window showing a frozen copy of the desktop. The user drags a rectangle, then a small
@@ -59,13 +61,14 @@ public sealed class OverlayWindow : Window
     {
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2 };
         if (_stitchMode && _sessionRunning)
-            row.Children.Add(IconButton.Create(IconButton.Camera, "Capture this region as a new frame (Enter)", () => _view.Confirm(save: true)));
+            row.Children.Add(IconButton.Create(IconButton.Camera, "Capture this region as a new frame (Enter)", () => _view.Confirm(CaptureAction.Save)));
         else if (_stitchMode)
-            row.Children.Add(IconButton.Create(IconButton.Layers, "Start stitching with this region (Enter)", () => _view.Confirm(save: true)));
+            row.Children.Add(IconButton.Create(IconButton.Layers, "Start stitching with this region (Enter)", () => _view.Confirm(CaptureAction.Save)));
         else
         {
-            row.Children.Add(IconButton.Create(IconButton.Save, "Save to file (Enter)", () => _view.Confirm(save: true)));
-            row.Children.Add(IconButton.Create(IconButton.Copy, "Copy to clipboard (Ctrl+C)", () => _view.Confirm(save: false)));
+            row.Children.Add(IconButton.Create(IconButton.Save, "Save to file (Enter)", () => _view.Confirm(CaptureAction.Save)));
+            row.Children.Add(IconButton.Create(IconButton.Copy, "Copy to clipboard (Ctrl+C)", () => _view.Confirm(CaptureAction.Copy)));
+            row.Children.Add(IconButton.Create(IconButton.Pencil, "Annotate in the editor (E)", () => _view.Confirm(CaptureAction.Edit)));
         }
         row.Children.Add(IconButton.Create(IconButton.Close, "Cancel (Esc)", _view.CancelAndClose));
         return new Border
@@ -148,9 +151,9 @@ sealed class OverlayView : Control
 
     public void CancelAndClose() => Finish(null);
 
-    public void Confirm(bool save)
+    public void Confirm(CaptureAction action)
     {
-        if (_selection is { } s) Finish(new CaptureResult(new ScreenRect(s.X, s.Y, s.Width, s.Height), save));
+        if (_selection is { } s) Finish(new CaptureResult(new ScreenRect(s.X, s.Y, s.Width, s.Height), action));
     }
 
     void Finish(CaptureResult? r)
@@ -175,7 +178,7 @@ sealed class OverlayView : Control
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         var p = ToPixel(e.GetPosition(this));
-        if (e.ClickCount == 2 && _selection is { } s && s.Contains(p)) { Confirm(save: true); return; }
+        if (e.ClickCount == 2 && _selection is { } s && s.Contains(p)) { Confirm(CaptureAction.Save); return; }
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
         _dragStart = _cursor = p;
         _dragging = true;
@@ -203,8 +206,9 @@ sealed class OverlayView : Control
         switch (e.Key)
         {
             case Key.Escape: Finish(null); break;
-            case Key.Enter: Confirm(save: true); break;
-            case Key.C when e.KeyModifiers.HasFlag(KeyModifiers.Control): Confirm(save: false); break;
+            case Key.Enter: Confirm(CaptureAction.Save); break;
+            case Key.C when e.KeyModifiers.HasFlag(KeyModifiers.Control): Confirm(CaptureAction.Copy); break;
+            case Key.E: Confirm(CaptureAction.Edit); break;
             case Key.Left: Nudge(-step, 0); break;
             case Key.Right: Nudge(step, 0); break;
             case Key.Up: Nudge(0, -step); break;

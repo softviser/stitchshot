@@ -12,7 +12,7 @@ Also does the usual: region / window / full screen capture with a frozen screen,
 full-width crosshair, pixel magnifier with coordinates and color, and a small
 annotation editor (rectangle, ellipse, line, dashed line, arrow, pen, text, blur).
 
-Status: early development, nothing to download yet. See [PLAN.md](PLAN.md).
+Status: early development, nothing to download yet. See [PLAN.md](PLAN.md). Usage: [docs/HELP.md](docs/HELP.md).
 
 ## Platforms
 

@@ -25,6 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\..\docs\HELP.md" LogicalName="HELP.md" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\StitchShot.Core\StitchShot.Core.csproj" />
     <ProjectReference Include="..\StitchShot.Platform.Windows\StitchShot.Platform.Windows.csproj" />
     <ProjectReference Include="..\StitchShot.Platform.Linux\StitchShot.Platform.Linux.csproj" />

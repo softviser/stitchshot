@@ -43,6 +43,7 @@ public partial class App : Application
         Log.Write($"starting, shutdown mode {desktop.ShutdownMode}");
         desktop.Exit += (_, e) => Log.Write($"exit code {e.ApplicationExitCode}");
         (_capturer, _clipboard) = CreatePlatform();
+        ToastWindow.Settings = _settings;
         ApplyHotkeys();
 
         var menu = new NativeMenu();
@@ -56,6 +57,7 @@ public partial class App : Application
             Process.Start(new ProcessStartInfo(_settings.SaveFolder) { UseShellExecute = true });
         }));
         menu.Items.Add(MenuItem("Settings…", OpenSettings));
+        menu.Items.Add(MenuItem("Help", HelpWindow.Open));
         menu.Items.Add(new NativeMenuItemSeparator());
         menu.Items.Add(MenuItem("Exit", () => { _hook?.Dispose(); desktop.Shutdown(); }));
 
@@ -88,11 +90,10 @@ public partial class App : Application
         _hotkeys.Add((HotkeyBinding.Parse(_settings.StitchFinishHotkey), StitchFinish));
     }
 
-    void UpdateTooltip(string? status = null)
+    void UpdateTooltip()
     {
         if (_tray is null) return;
-        _tray.ToolTipText = $"StitchShot\n{_settings.RegionHotkey}: capture region\n{_settings.FullScreenHotkey}: full screen\n{_settings.StitchStartHotkey}: start stitch session"
-            + (status is null ? "" : $"\n{status}");
+        _tray.ToolTipText = $"StitchShot\n{_settings.RegionHotkey}: capture region\n{_settings.FullScreenHotkey}: full screen\n{_settings.StitchStartHotkey}: start stitch session";
     }
 
     static NativeMenuItem MenuItem(string header, Action action)
@@ -142,7 +143,7 @@ public partial class App : Application
         var frozen = _capturer.Capture(desktop);
         try
         {
-            _overlay = new OverlayWindow(frozen, desktop, stitchMode);
+            _overlay = new OverlayWindow(frozen, desktop, stitchMode, sessionRunning: _stitch is not null);
             _overlay.Show();
             return (frozen, desktop, await _overlay.Result);
         }
@@ -156,9 +157,15 @@ public partial class App : Application
             if (await PickRegionAsync(stitchMode: false) is not { } pick) return;
             using var frozen = pick.Frozen;
             if (pick.Result is not { } result) return;
-            using var crop = ImageSaver.Crop(frozen, result.Region);
+            var r = result.Region;
+            using var crop = ImageSaver.Crop(frozen, r);
+            FlashWindow.Show(new ScreenRect(pick.Desktop.X + r.X, pick.Desktop.Y + r.Y, r.Width, r.Height));
             if (result.Save) SaveAndCopy(crop);
-            else { _clipboard.SetImage(crop); UpdateTooltip("Copied to clipboard"); }
+            else
+            {
+                _clipboard.SetImage(crop);
+                ToastWindow.Show("Copied to clipboard", "Paste it with Ctrl+V. Nothing was saved to disk.", crop);
+            }
         }
         catch (Exception ex) { Report(ex); }
     }
@@ -168,6 +175,7 @@ public partial class App : Application
         try
         {
             using var shot = _capturer.Capture(_capturer.VirtualDesktop);
+            FlashWindow.Show(_capturer.VirtualDesktop);
             SaveAndCopy(shot);
         }
         catch (Exception ex) { Report(ex); }
@@ -194,17 +202,19 @@ public partial class App : Application
             }
             _stitch.Add(ImageSaver.Crop(frozen, r));
             _hud!.Update(_stitch);
+            FlashWindow.Show(_stitchRegion);
         }
         catch (Exception ex) { Report(ex); }
     }
 
     void StitchCapture()
     {
-        if (_stitch is null) { UpdateTooltip($"No stitch session. Start one with {_settings.StitchStartHotkey}."); return; }
+        if (_stitch is null) { ToastWindow.Show("No stitch session", $"Start one with {_settings.StitchStartHotkey} or from the tray menu."); return; }
         try
         {
             _stitch.Add(_capturer.Capture(_stitchRegion));
             _hud?.Update(_stitch);
+            FlashWindow.Show(_stitchRegion);
         }
         catch (Exception ex) { Report(ex); }
     }
@@ -254,13 +264,13 @@ public partial class App : Application
     {
         var path = ImageSaver.SavePng(bitmap, _settings.SaveFolder, DateTime.Now);
         if (_settings.CopyToClipboard) _clipboard.SetImage(bitmap);
-        UpdateTooltip($"Saved {Path.GetFileName(path)}");
+        ToastWindow.Show($"Saved {Path.GetFileName(path)}",
+            (_settings.CopyToClipboard ? "Also copied to the clipboard. " : "") + "Click to show it in the folder.", bitmap, path);
     }
 
-    // shortcut: no notification UI yet, so errors land in the tray tooltip and the log; replace when a toast exists.
     void Report(Exception ex)
     {
         Log.Write(ex.ToString());
-        UpdateTooltip($"Error: {ex.Message}");
+        ToastWindow.Show("Something went wrong", $"{ex.Message}\nDetails: {Log.Path}");
     }
 }

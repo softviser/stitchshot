@@ -73,7 +73,10 @@ public sealed class SettingsWindow : Window
         save.Click += (_, _) => SaveAndClose();
         var cancel = new Button { Content = "Cancel", IsCancel = true };
         cancel.Click += (_, _) => Close();
+        var help = new Button { Content = "Help" };
+        help.Click += (_, _) => HelpWindow.Open();
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 16, 0, 0) };
+        buttons.Children.Add(help);
         buttons.Children.Add(save);
         buttons.Children.Add(cancel);
         form.Children.Add(buttons);

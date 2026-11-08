@@ -25,13 +25,14 @@ public sealed class OverlayWindow : Window
     readonly OverlayView _view;
     readonly Border _toolbar;
     readonly double _scale;
-    readonly bool _stitchMode;
+    readonly bool _stitchMode, _sessionRunning;
     public Task<CaptureResult?> Result => _view.Result;
 
     // shortcut: one window spans all monitors, so mixed-DPI setups mis-scale secondary screens; upgrade to one window per monitor.
-    public OverlayWindow(SKBitmap frozen, ScreenRect desktop, bool stitchMode = false)
+    public OverlayWindow(SKBitmap frozen, ScreenRect desktop, bool stitchMode = false, bool sessionRunning = false)
     {
         _stitchMode = stitchMode;
+        _sessionRunning = sessionRunning;
         WindowDecorations = WindowDecorations.None;
         Topmost = true;
         ShowInTaskbar = false;
@@ -57,7 +58,9 @@ public sealed class OverlayWindow : Window
     Border BuildToolbar()
     {
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2 };
-        if (_stitchMode)
+        if (_stitchMode && _sessionRunning)
+            row.Children.Add(IconButton.Create(IconButton.Camera, "Capture this region as a new frame (Enter)", () => _view.Confirm(save: true)));
+        else if (_stitchMode)
             row.Children.Add(IconButton.Create(IconButton.Layers, "Start stitching with this region (Enter)", () => _view.Confirm(save: true)));
         else
         {
@@ -285,7 +288,7 @@ sealed class OverlayView : Control
         ctx.DrawText(ft, new Point(box.X + 5, box.Y + 3));
     }
 
-    static unsafe WriteableBitmap ToAvalonia(SKBitmap sk)
+    internal static unsafe WriteableBitmap ToAvalonia(SKBitmap sk)
     {
         var wb = new WriteableBitmap(new PixelSize(sk.Width, sk.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Opaque);
         using var fb = wb.Lock();

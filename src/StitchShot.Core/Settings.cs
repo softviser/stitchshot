@@ -18,6 +18,8 @@ public sealed class Settings
     public int ScrollDelayMs { get; set; } = 400;
     public int? HudX { get; set; }
     public int? HudY { get; set; }
+    public int? ToastX { get; set; }
+    public int? ToastY { get; set; }
 
     public static string DefaultPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StitchShot", "settings.json");

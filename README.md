@@ -30,6 +30,9 @@ dotnet test
 dotnet run --project src/StitchShot.App
 ```
 
+`StitchShot --fullscreen` captures the whole desktop to the screenshots folder and the
+clipboard without starting the tray app; useful for scripts and smoke tests.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).

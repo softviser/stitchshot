@@ -58,6 +58,7 @@ public partial class App : Application
         menu.Items.Add(MenuItem("Open screenshots folder", () => Shell.OpenFolder(_settings.SaveFolder)));
         menu.Items.Add(MenuItem("Settings…", OpenSettings));
         menu.Items.Add(MenuItem("Help", HelpWindow.Open));
+        menu.Items.Add(MenuItem("About StitchShot", AboutWindow.Open));
         menu.Items.Add(new NativeMenuItemSeparator());
         menu.Items.Add(MenuItem("Exit", () => { _hook?.Dispose(); desktop.Shutdown(); }));
 

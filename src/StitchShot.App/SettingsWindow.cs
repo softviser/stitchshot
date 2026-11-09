@@ -81,22 +81,14 @@ public sealed class SettingsWindow : Window
         save.Click += (_, _) => SaveAndClose();
         var cancel = new Button { Content = "Cancel", IsCancel = true };
         cancel.Click += (_, _) => Close();
-        var help = new Button { Content = "Help" };
-        help.Click += (_, _) => HelpWindow.Open();
+        var about = new Button { Content = "About…" };
+        about.Click += (_, _) => AboutWindow.Open();
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 16, 0, 0) };
-        buttons.Children.Add(help);
+        buttons.Children.Add(about);
         buttons.Children.Add(save);
         buttons.Children.Add(cancel);
         form.Children.Add(buttons);
 
-        Section(form, "About");
-        var version = typeof(SettingsWindow).Assembly.GetName().Version?.ToString(3) ?? "dev";
-        form.Children.Add(new TextBlock { Text = $"StitchShot {version} · Softviser Yazılım · MIT license", FontSize = 12 });
-        var links = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12 };
-        links.Children.Add(new HyperlinkButton { Content = "softviser.com.tr", NavigateUri = new Uri("https://softviser.com.tr"), Padding = new Thickness(0) });
-        links.Children.Add(new HyperlinkButton { Content = "github.com/softviser/stitchshot", NavigateUri = new Uri("https://github.com/softviser/stitchshot"), Padding = new Thickness(0) });
-        form.Children.Add(links);
-        form.Children.Add(new TextBlock { Text = $"Log file: {Log.Path}", Opacity = 0.5, FontSize = 11, TextWrapping = TextWrapping.Wrap });
         Content = form;
     }
 

@@ -6,7 +6,7 @@ waits for its hotkeys, and stays out of the way.
 
 Every key named below is the default. All of them can be changed in Settings.
 
-Default keys                 Windows                 Linux / macOS
+  Default keys               Windows                 Linux / macOS
   Capture a region           PrintScreen             Ctrl+Shift+4
   Capture the full screen    Ctrl+PrintScreen        Ctrl+Shift+3
   Start stitch / add region  Ctrl+Shift+S            Ctrl+Shift+S
@@ -24,7 +24,7 @@ The tray icon (blue tile with three bars) is the home base:
 
   left click          capture a region
   right click         menu: capture, stitch, open the screenshots folder,
-                      Settings, Help, Exit
+                      Settings, Help, About, Exit
 
 Hover over the icon to see the current hotkeys. Screenshots go to
 Pictures/StitchShot as PNG files named StitchShot_2026-03-14_09-41-07.png, and
@@ -258,5 +258,6 @@ the capture method used for now.
                                        Linux    /tmp/StitchShot.log
                                        macOS    $TMPDIR/StitchShot.log
 
-The Help button and About section in Settings show the version, the website and
-the GitHub project, where issues can be reported.
+"About StitchShot" in the tray menu (or the About button in Settings) shows the
+version, the log file location, and links to the website (softviser.com.tr/stitchshot)
+and the GitHub project, where issues can be reported.

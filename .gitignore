@@ -9,3 +9,7 @@ obj/
 
 ## Derleme çıktıları
 artifacts/
+
+## Site
+site/cache/*
+!site/cache/.gitkeep

@@ -17,7 +17,7 @@ Also does the usual: region / window / full screen capture with a frozen screen,
 full-width crosshair, pixel magnifier with coordinates and color, and a small
 annotation editor (rectangle, ellipse, line, dashed line, arrow, pen, text, blur).
 
-Usage: [docs/HELP.md](docs/HELP.md). Roadmap: [PLAN.md](PLAN.md).
+Website: [softviser.com.tr/stitchshot](https://softviser.com.tr/stitchshot). Usage: [docs/HELP.md](docs/HELP.md). Roadmap: [PLAN.md](PLAN.md).
 
 ## Install
 

@@ -193,7 +193,9 @@ Right-click the tray icon and choose Settings.
   Copy to clipboard          put every capture on the clipboard as well
   Start at login             register StitchShot to start with the OS
                              (Run key on Windows, autostart entry on Linux,
-                             LaunchAgent on macOS)
+                             LaunchAgent on macOS). The Microsoft Store
+                             version shows a link instead: Windows owns the
+                             setting, under Settings > Apps > Startup
   Hotkeys                    click a box, press the combination you want.
                              Duplicates are refused and the box keeps focus
                              until it is changed

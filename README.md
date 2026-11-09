@@ -25,6 +25,7 @@ Downloads are on the [Releases](https://github.com/softviser/stitchshot/releases
 
 | Platform | File | Notes |
 |---|---|---|
+| Windows | [Microsoft Store](https://apps.microsoft.com/) | signed, updates by itself; start at login is switched in Windows Settings > Apps > Startup |
 | Windows | `StitchShot-x.y.z-win-x64-setup.exe` | installer: Start Menu entry, optional start at login, uninstaller; installs per user, no admin rights |
 | Windows, portable | `StitchShot-x.y.z-win-x64.exe` | one file, run it from anywhere; .NET is bundled |
 | Windows, small | `StitchShot-x.y.z-win-x64-requires-net8.exe` | needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) |
@@ -60,6 +61,10 @@ dotnet run --project src/StitchShot.App
 
 Linux needs `libX11` at runtime and `xclip` (X11) or `wl-copy` (Wayland) for the
 clipboard. macOS asks for Screen Recording and Accessibility permissions on first use.
+
+The Store package is built by `installer/msix/build.ps1` (needs the Windows SDK for
+`makeappx`); CI attaches it to every run as the `msix-<version>` artifact, unsigned, for
+upload to Partner Center.
 
 `StitchShot --fullscreen` captures the whole desktop to the screenshots folder and the
 clipboard without starting the tray app; useful for scripts and smoke tests.

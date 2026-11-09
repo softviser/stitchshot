@@ -73,7 +73,7 @@ public partial class App : Application
         Log.Write("tray and hook up");
         if (_firstRun)
         {
-            if (_startup.Enabled) _settings.Save(); // the installer already asked; just mark the first run done
+            if (_startup.Enabled || _startup.ExternalSettingsUri is not null) _settings.Save(); // the installer already asked, or Windows owns the setting; just mark the first run done
             else new FirstRunWindow(_settings, _startup).Show();
         }
         base.OnFrameworkInitializationCompleted();
@@ -81,7 +81,7 @@ public partial class App : Application
 
     public static (IScreenCapturer, IImageClipboard, IStartupRegistration) CreatePlatform()
     {
-        if (OperatingSystem.IsWindows()) return (new GdiScreenCapturer(), new WindowsImageClipboard(), new WindowsStartupRegistration());
+        if (OperatingSystem.IsWindows()) return (new GdiScreenCapturer(), new WindowsImageClipboard(), StoreStartupRegistration.IsPackaged() ? new StoreStartupRegistration() : new WindowsStartupRegistration());
         if (OperatingSystem.IsLinux()) return (new X11ScreenCapturer(), new LinuxImageClipboard(), new LinuxStartupRegistration());
         if (OperatingSystem.IsMacOS()) return (new MacScreenCapturer(), new MacImageClipboard(), new MacStartupRegistration());
         throw new PlatformNotSupportedException("StitchShot runs on Windows, Linux (X11) and macOS.");

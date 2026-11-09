@@ -94,7 +94,7 @@ page_head('StitchShot', TAGLINE . ' Free and open source for Windows, Linux and 
     <?php endforeach; ?>
     </tbody>
   </table>
-  <p class="small">The Windows files are not code-signed yet, so SmartScreen warns the first time: "More info", then "Run anyway". macOS: the download is not notarised; run <code>xattr -d com.apple.quarantine StitchShot</code> once, or right-click and Open. Linux needs an X11 session; Wayland capture is on the roadmap.</p>
+  <p class="small">On Windows the <a href="https://apps.microsoft.com/" rel="noopener">Microsoft Store version</a> is signed and updates by itself. The files above are not code-signed yet, so SmartScreen warns the first time: "More info", then "Run anyway". macOS: the download is not notarised; run <code>xattr -d com.apple.quarantine StitchShot</code> once, or right-click and Open. Linux needs an X11 session; Wayland capture is on the roadmap.</p>
   <?php else: ?>
   <p class="notice">Release information could not be loaded right now. All files are on the <a href="<?= REPO_URL ?>/releases" rel="noopener">GitHub releases page</a>.</p>
   <?php endif; ?>

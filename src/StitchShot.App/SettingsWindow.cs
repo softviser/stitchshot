@@ -50,13 +50,20 @@ public sealed class SettingsWindow : Window
         form.Children.Add(folderRow);
         _clipboard = new CheckBox { Content = "Also copy every capture to the clipboard", IsChecked = s.CopyToClipboard };
         form.Children.Add(_clipboard);
-        var startWithOs = new CheckBox { Content = "Start StitchShot when I log in", IsChecked = startup.Enabled };
-        startWithOs.IsCheckedChanged += (_, _) =>
+        if (startup.ExternalSettingsUri is { } uri)
         {
-            try { startup.Enabled = startWithOs.IsChecked == true; }
-            catch (Exception ex) { Log.Write(ex.ToString()); ToastWindow.Show("Could not change startup setting", ex.Message); }
-        };
-        form.Children.Add(startWithOs);
+            form.Children.Add(new HyperlinkButton { Content = "Start at login is set in Windows Settings > Apps > Startup for this install. Open it…", NavigateUri = new Uri(uri), Padding = new Thickness(0), FontSize = 12 });
+        }
+        else
+        {
+            var startWithOs = new CheckBox { Content = "Start StitchShot when I log in", IsChecked = startup.Enabled };
+            startWithOs.IsCheckedChanged += (_, _) =>
+            {
+                try { startup.Enabled = startWithOs.IsChecked == true; }
+                catch (Exception ex) { Log.Write(ex.ToString()); ToastWindow.Show("Could not change startup setting", ex.Message); }
+            };
+            form.Children.Add(startWithOs);
+        }
 
         Section(form, "Hotkeys");
         form.Children.Add(new TextBlock { Text = "Click a box and press the combination you want.", Opacity = 0.6, FontSize = 12 });

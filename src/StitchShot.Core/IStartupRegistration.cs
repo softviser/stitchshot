@@ -4,4 +4,7 @@ namespace StitchShot.Core;
 public interface IStartupRegistration
 {
     bool Enabled { get; set; }
+
+    /// <summary>When the app cannot change the setting itself (Store package), a link that opens where the user does it; null otherwise.</summary>
+    string? ExternalSettingsUri => null;
 }

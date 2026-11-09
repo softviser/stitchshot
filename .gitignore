@@ -13,3 +13,5 @@ artifacts/
 ## Site
 site/cache/*
 !site/cache/.gitkeep
+dist/
+publish/

@@ -81,6 +81,29 @@ page_head('StitchShot', TAGLINE . ' Free and open source for Windows, Linux and 
   <h2>Download</h2>
   <?php if ($latest): ?>
   <p class="lead">StitchShot <?= h($version) ?>, released <?= fmt_date($latest['published_at']) ?>. Pick the file for your system; every file has a SHA-256 in the checksums list.</p>
+  <div class="platforms">
+    <div>
+      <h3>Windows</h3>
+      <?php if (isset($files['win-setup'])): ?><a class="btn primary" href="<?= h($files['win-setup']['browser_download_url']) ?>">Installer, <?= fmt_size((int)$files['win-setup']['size']) ?></a><?php endif; ?>
+      <p>Run the installer; it asks whether to start at login. Or take the portable file from the table.</p>
+    </div>
+    <div>
+      <h3>macOS</h3>
+      <?php if (isset($files['mac-arm'])): ?><a class="btn primary" href="<?= h($files['mac-arm']['browser_download_url']) ?>">Apple silicon, <?= fmt_size((int)$files['mac-arm']['size']) ?></a><?php endif; ?>
+      <?php if (isset($files['mac-intel'])): ?><a class="btn" href="<?= h($files['mac-intel']['browser_download_url']) ?>">Intel, <?= fmt_size((int)$files['mac-intel']['size']) ?></a><?php endif; ?>
+      <pre><code>tar xzf StitchShot-*-osx-*.tar.gz
+xattr -d com.apple.quarantine StitchShot
+./StitchShot</code></pre>
+      <p>Grant Screen Recording and Accessibility when asked, then start it again.</p>
+    </div>
+    <div>
+      <h3>Linux</h3>
+      <?php if (isset($files['linux'])): ?><a class="btn primary" href="<?= h($files['linux']['browser_download_url']) ?>">x64, <?= fmt_size((int)$files['linux']['size']) ?></a><?php endif; ?>
+      <pre><code>tar xzf StitchShot-*-linux-x64.tar.gz
+./StitchShot</code></pre>
+      <p>X11 session (or XWayland apps only). Needs <code>libX11</code> and <code>xclip</code> or <code>wl-copy</code> for the clipboard; GNOME needs the AppIndicator extension for the tray icon.</p>
+    </div>
+  </div>
   <table class="downloads">
     <thead><tr><th>Platform</th><th>File</th><th>Size</th><th>Notes</th></tr></thead>
     <tbody>

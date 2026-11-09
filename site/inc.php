@@ -214,7 +214,7 @@ function page_foot(): void
 <footer>
   <div class="wrap">
     <p>StitchShot is free software under the <a href="docs.php?p=license">MIT license</a>, made by <a href="https://softviser.com.tr" rel="noopener">Softviser Yazılım</a>.</p>
-    <p><a href="<?= REPO_URL ?>" rel="noopener">Source</a> · <a href="<?= REPO_URL ?>/issues" rel="noopener">Issues</a> · <a href="<?= REPO_URL ?>/releases" rel="noopener">Releases</a> · <a href="docs.php?p=logo">Logo</a></p>
+    <p><a href="<?= REPO_URL ?>" rel="noopener">Source</a> · <a href="<?= REPO_URL ?>/issues" rel="noopener">Issues</a> · <a href="<?= REPO_URL ?>/releases" rel="noopener">Releases</a> · <a href="docs.php?p=logo">Logo</a> · <a href="privacy.php">Privacy</a></p>
   </div>
 </footer>
 </body>

@@ -19,6 +19,29 @@ annotation editor (rectangle, ellipse, line, dashed line, arrow, pen, text, blur
 
 Website: [svsr.net/stitchshot](https://svsr.net/stitchshot). Usage: [docs/HELP.md](docs/HELP.md). Changes: [CHANGELOG.md](CHANGELOG.md). Roadmap: [PLAN.md](PLAN.md).
 
+## Screenshots
+
+Selecting a region: the screen is frozen and dimmed, a crosshair spans it, the loupe shows the
+pixels under the cursor with position and colour, and the size of the selection is shown as you drag.
+
+![Region selection with crosshair, loupe and size label](docs/screenshots/overlay.png)
+
+A stitch session: the HUD keeps count of the frames and the size so far; when you finish, the
+notification shows the saved file and opens the folder or the editor.
+
+![The stitch HUD in the bottom-right corner](docs/screenshots/stitch-hud.png)
+
+![The Saved notification with thumbnail, file name and size](docs/screenshots/notification.png)
+
+The editor, with a rectangle, an arrow, text and a pixelated area:
+
+![The editor with annotations](docs/screenshots/editor.png)
+
+Also: [a stitched result](docs/screenshots/stitched.png) (six frames of a long page, 1280 × 3220,
+overlaps trimmed), [the settings window](docs/screenshots/settings.png) and
+[the About window](docs/screenshots/about.png). The pictures are taken from the real windows by
+[tools/Screenshots](tools/Screenshots/README.md).
+
 ## Install
 
 Downloads are on the [Releases](https://github.com/softviser/stitchshot/releases) page.

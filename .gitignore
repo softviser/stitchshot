@@ -10,12 +10,14 @@ obj/
 ## Derleme çıktıları
 artifacts/
 
-## Site
-site/cache/*
-!site/cache/.gitkeep
+## Website (published separately, not part of the repository)
+site/
 dist/
 publish/
 
 ## Design tooling
 .taste-skill/
 *.7z
+
+## Screenshot tool inputs (rendered web pages, see tools/Screenshots/README.md)
+tools/Screenshots/in/

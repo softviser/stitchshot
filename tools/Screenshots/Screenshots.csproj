@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Opens the app's windows over a prepared desktop image and captures them, so the screenshots in docs/screenshots
+       and on the website show the real UI rather than a mock-up. Windows only. See README.md next to this file. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWindowsForms>false</UseWindowsForms>
+    <ApplicationManifest>..\..\src\StitchShot.App\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\StitchShot.App\StitchShot.App.csproj" />
+  </ItemGroup>
+</Project>

@@ -69,7 +69,15 @@ public partial class App : Application
 
         _hook = new SimpleGlobalHook();
         _hook.KeyPressed += OnKeyPressed;
-        _hook.RunAsync(GlobalHookType.Keyboard).ContinueWith(t => Log.Write($"hook stopped: {t.Exception?.GetBaseException().Message ?? "ok"}"));
+        _hook.RunAsync(GlobalHookType.Keyboard).ContinueWith(t =>
+        {
+            Log.Write($"hook stopped: {t.Exception?.GetBaseException().Message ?? "ok"}");
+            if (!t.IsFaulted) return;
+            var why = OperatingSystem.IsMacOS()
+                ? "macOS did not allow the keyboard hook. System Settings > Privacy & Security > Accessibility: allow StitchShot (or the terminal you started it from), then start it again."
+                : t.Exception!.GetBaseException().Message;
+            Dispatcher.UIThread.Post(() => ToastWindow.Show("Hotkeys are off", why + " The tray menu still works.", seconds: 20));
+        });
         Log.Write("tray and hook up");
         if (_firstRun)
         {

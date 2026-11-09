@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Bundle manifest for StitchShot.app; CI fills in __VERSION__. LSUIElement keeps a tray-only app out of the Dock. -->
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key><string>StitchShot</string>
+  <key>CFBundleDisplayName</key><string>StitchShot</string>
+  <key>CFBundleIdentifier</key><string>com.softviser.stitchshot</string>
+  <key>CFBundleVersion</key><string>__VERSION__</string>
+  <key>CFBundleShortVersionString</key><string>__VERSION__</string>
+  <key>CFBundleExecutable</key><string>StitchShot</string>
+  <key>CFBundleIconFile</key><string>StitchShot</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+  <key>LSMinimumSystemVersion</key><string>11.0</string>
+  <key>LSUIElement</key><true/>
+  <key>NSHighResolutionCapable</key><true/>
+  <key>NSHumanReadableCopyright</key><string>© 2026 Softviser Yazılım. MIT license.</string>
+</dict>
+</plist>

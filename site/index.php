@@ -92,9 +92,9 @@ page_head('StitchShot', TAGLINE . ' Free and open source for Windows, Linux and 
       <?php if (isset($files['mac-arm'])): ?><a class="btn primary" href="<?= h($files['mac-arm']['browser_download_url']) ?>">Apple silicon, <?= fmt_size((int)$files['mac-arm']['size']) ?></a><?php endif; ?>
       <?php if (isset($files['mac-intel'])): ?><a class="btn" href="<?= h($files['mac-intel']['browser_download_url']) ?>">Intel, <?= fmt_size((int)$files['mac-intel']['size']) ?></a><?php endif; ?>
       <pre><code>tar xzf StitchShot-*-osx-*.tar.gz
-xattr -d com.apple.quarantine StitchShot
-./StitchShot</code></pre>
-      <p>Grant Screen Recording and Accessibility when asked, then start it again.</p>
+xattr -dr com.apple.quarantine StitchShot.app
+open StitchShot.app</code></pre>
+      <p>Grant Screen Recording and Accessibility when asked, then start it again. It lives in the menu bar, not the Dock.</p>
     </div>
     <div>
       <h3>Linux</h3>
@@ -117,7 +117,7 @@ xattr -d com.apple.quarantine StitchShot
     <?php endforeach; ?>
     </tbody>
   </table>
-  <p class="small">The Windows files are not code-signed yet, so SmartScreen warns the first time: "More info", then "Run anyway". macOS: the download is not notarised; run <code>xattr -d com.apple.quarantine StitchShot</code> once, or right-click and Open. Linux needs an X11 session; Wayland capture is on the roadmap.</p>
+  <p class="small">The Windows files are not code-signed yet, so SmartScreen warns the first time: "More info", then "Run anyway". macOS: the download is not notarised; run <code>xattr -dr com.apple.quarantine StitchShot.app</code> once, or use "Open Anyway" in Privacy &amp; Security. Linux needs an X11 session; Wayland capture is on the roadmap.</p>
   <?php else: ?>
   <p class="notice">Release information could not be loaded right now. All files are on the <a href="<?= REPO_URL ?>/releases" rel="noopener">GitHub releases page</a>.</p>
   <?php endif; ?>

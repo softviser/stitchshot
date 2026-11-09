@@ -29,7 +29,7 @@ Downloads are on the [Releases](https://github.com/softviser/stitchshot/releases
 | Windows, portable | `StitchShot-x.y.z-win-x64.exe` | one file, run it from anywhere; .NET is bundled |
 | Windows, small | `StitchShot-x.y.z-win-x64-requires-net8.exe` | needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) |
 | Linux | `StitchShot-x.y.z-linux-x64.tar.gz` | extract and run `./StitchShot`; needs `libX11` and `xclip` or `wl-copy` |
-| macOS | `StitchShot-x.y.z-osx-arm64.tar.gz` (Apple silicon), `-osx-x64` (Intel) | extract, `xattr -d com.apple.quarantine StitchShot`, run; grant Screen Recording and Accessibility when asked |
+| macOS | `StitchShot-x.y.z-osx-arm64.tar.gz` (Apple silicon), `-osx-x64` (Intel) | extract, `xattr -dr com.apple.quarantine StitchShot.app`, open the app; grant Screen Recording and Accessibility when asked, then start it again |
 
 The Windows files are not code-signed yet, so SmartScreen shows a warning the first
 time; "More info" > "Run anyway". Every file has a SHA-256 next to it in

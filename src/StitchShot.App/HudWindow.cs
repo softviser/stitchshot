@@ -47,7 +47,7 @@ public sealed class HudWindow : Window
         panel.PointerPressed += (_, e) => { if (e.GetCurrentPoint(panel).Properties.IsLeftButtonPressed) BeginMoveDrag(e); };
         Content = panel;
 
-        if (settings.HudX is { } x && settings.HudY is { } y)
+        if (settings.HudX is { } x && settings.HudY is { } y && Screens.ScreenFromPoint(new PixelPoint(x, y)) is not null)
         {
             WindowStartupLocation = WindowStartupLocation.Manual;
             Position = new PixelPoint(x, y);
@@ -63,11 +63,13 @@ public sealed class HudWindow : Window
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        if (_settings.HudX is null && Screens.Primary is { } screen)
+        var screen = Screens.ScreenFromPoint(Position) ?? Screens.Primary;
+        if ((_settings.HudX is null || Screens.ScreenFromPoint(new PixelPoint(_settings.HudX.Value, _settings.HudY ?? 0)) is null) && screen is not null)
         {
             var area = screen.WorkingArea;
             Position = new PixelPoint(area.Right - ScreenBounds.Width - 16, area.Bottom - ScreenBounds.Height - 16);
         }
+        Log.Write($"hud at {Position}, {Bounds.Width}x{Bounds.Height} @ {RenderScaling}, screen {screen?.WorkingArea.ToString() ?? "none"}");
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

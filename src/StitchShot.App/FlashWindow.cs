@@ -10,7 +10,11 @@ namespace StitchShot.App;
 /// <summary>Brief white flash over the captured region, so silent captures (hotkeys, stitch frames) are felt.</summary>
 public sealed class FlashWindow : Window
 {
-    public static void Show(ScreenRect region) => new FlashWindow(region).Show();
+    public static void Show(ScreenRect region)
+    {
+        ToastWindow.Anchor = new PixelPoint(region.X + region.Width / 2, region.Y + region.Height / 2);
+        new FlashWindow(region).Show();
+    }
 
     FlashWindow(ScreenRect region)
     {

@@ -13,27 +13,29 @@ namespace StitchShot.App;
 
 /// <summary>
 /// Small notification: what happened, a thumbnail, and a folder icon that reveals the file.
-/// Bottom-right by default; drag it anywhere and it remembers. Stays while the pointer is over it.
+/// Top-right of the monitor the last capture was on; drag it anywhere and it remembers. Stays while the pointer is over it.
 /// One at a time; a new one replaces the previous.
 /// </summary>
 public sealed class ToastWindow : Window
 {
     /// <summary>Set once at startup so toasts can remember where the user dragged them.</summary>
     public static Settings? Settings;
+    /// <summary>A point on the monitor the next toast should appear on; FlashWindow sets it to the captured region.</summary>
+    public static PixelPoint? Anchor;
     static ToastWindow? _current;
 
     readonly DispatcherTimer _timer;
     bool _moved;
 
-    public static void Show(string title, string detail, SKBitmap? preview = null, string? path = null, Action? edit = null)
+    public static void Show(string title, string detail, SKBitmap? preview = null, string? path = null, Action? edit = null, int? seconds = null)
     {
         _current?.Close();
-        _current = new ToastWindow(title, detail, preview, path, edit);
+        _current = new ToastWindow(title, detail, preview, path, edit, seconds);
         _current.Closed += (s, _) => { if (ReferenceEquals(_current, s)) _current = null; };
         _current.Show();
     }
 
-    ToastWindow(string title, string detail, SKBitmap? preview, string? path, Action? edit)
+    ToastWindow(string title, string detail, SKBitmap? preview, string? path, Action? edit, int? seconds)
     {
         WindowDecorations = WindowDecorations.None;
         Topmost = true;
@@ -77,16 +79,20 @@ public sealed class ToastWindow : Window
         panel.PointerExited += (_, _) => _timer!.Start();
         Content = panel;
 
-        _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(path is null ? 4 : 6) };
+        _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(seconds ?? (path is null ? 4 : 6)) };
         _timer.Tick += (_, _) => { _timer.Stop(); Close(); };
         _timer.Start();
 
-        if (Settings is { ToastX: { } x, ToastY: { } y })
+        if (Remembered is { } p)
         {
             WindowStartupLocation = WindowStartupLocation.Manual;
-            Position = new PixelPoint(x, y);
+            Position = p;
         }
     }
+
+    /// <summary>Where the user dragged the last toast, unless that spot is no longer on any screen (monitor unplugged).</summary>
+    PixelPoint? Remembered =>
+        Settings is { ToastX: { } x, ToastY: { } y } && Screens.ScreenFromPoint(new PixelPoint(x, y)) is not null ? new PixelPoint(x, y) : null;
 
     static Image Thumbnail(SKBitmap bitmap)
     {
@@ -101,9 +107,11 @@ public sealed class ToastWindow : Window
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        if (Settings?.ToastX is not null || Screens.Primary is not { } screen) return;
+        if (Remembered is not null) return;
+        var screen = (Anchor is { } a ? Screens.ScreenFromPoint(a) : null) ?? Screens.Primary;
+        if (screen is null) return;
         var area = screen.WorkingArea;
-        Position = new PixelPoint(area.Right - (int)(Bounds.Width * RenderScaling) - 16, area.Bottom - (int)(Bounds.Height * RenderScaling) - 16);
+        Position = new PixelPoint(area.Right - (int)(Bounds.Width * RenderScaling) - 16, area.Y + 16);
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

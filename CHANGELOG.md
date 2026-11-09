@@ -3,6 +3,21 @@
 All notable changes to StitchShot. Dates are release dates; downloads are on the
 [releases page](https://github.com/softviser/stitchshot/releases).
 
+## 1.0.2 – 2026-11-09
+
+### Fixed
+- macOS: when the system refuses the keyboard hook (no Accessibility permission),
+  a notification now says so at start instead of the hotkeys silently doing nothing.
+- The stitch HUD and notifications ignore a remembered position that is no longer on
+  any screen, and the HUD logs where it was placed.
+
+### Changed
+- macOS downloads are now an app bundle, `StitchShot.app`, with an icon and no Dock
+  icon. Permissions attach to StitchShot itself rather than to the terminal it was
+  started from.
+- The "Saved" notification appears in the top-right corner of the monitor the capture
+  was taken on. Dragging it still moves later notifications there.
+
 ## 1.0.1 – 2026-11-09
 
 ### Fixed

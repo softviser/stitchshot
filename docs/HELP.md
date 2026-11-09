@@ -175,8 +175,8 @@ Esc closes the editor without saving.
 Every capture flashes the captured area white for a moment, so you know the key
 was received even when nothing else changes on screen.
 
-When a file is saved, a small dark notification appears in the bottom-right
-corner with a thumbnail and the file name. It has a folder icon that opens the
+When a file is saved, a small dark notification appears in the top-right corner
+of the monitor the capture was on, with a thumbnail and the file name. It has a folder icon that opens the
 file's folder with the file selected, a pencil icon that opens the image in the
 editor, and an X. It closes by itself after six seconds, but stays while the
 mouse is over it, and it can be dragged anywhere; later notifications appear
@@ -238,11 +238,16 @@ the capture method used for now.
 ### macOS
 
   - The first capture triggers the Screen Recording permission dialog, and the
-    hotkeys need Accessibility (Input Monitoring) permission. Both are under
-    System Settings > Privacy & Security. Restart StitchShot after granting.
+    hotkeys need Accessibility permission. Both are under System Settings >
+    Privacy & Security. Restart StitchShot after granting. Without Accessibility
+    a notification says "Hotkeys are off" at start; the tray menu still works.
+  - Run StitchShot.app from the Finder. Started from a terminal, macOS asks the
+    permissions for the terminal instead of for StitchShot.
+  - StitchShot has no Dock icon; it lives in the menu bar.
   - Captures cover the main display. Secondary displays come later.
   - The download is not notarised. If macOS refuses to open it, run
-    `xattr -d com.apple.quarantine StitchShot` once, or right-click > Open.
+    `xattr -dr com.apple.quarantine StitchShot.app` once, or use "Open Anyway"
+    under System Settings > Privacy & Security right after the refusal.
 
 
 ## 9. Troubleshooting

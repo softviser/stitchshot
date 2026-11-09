@@ -16,7 +16,9 @@ public sealed class SettingsWindow : Window
 {
     readonly Settings _settings;
     readonly TextBox _folder;
-    readonly CheckBox _clipboard, _trimOverlap;
+    readonly CheckBox _clipboard, _trimOverlap, _loupe;
+    readonly ComboBox _toastCorner;
+    static readonly string[] Corners = { "TopRight", "TopLeft", "BottomRight", "BottomLeft", "Custom" };
     readonly NumericUpDown _cropTop, _scrollDelay;
     readonly List<(TextBox Box, Action<string> Apply)> _hotkeys = new();
 
@@ -64,6 +66,12 @@ public sealed class SettingsWindow : Window
             };
             form.Children.Add(startWithOs);
         }
+
+        Section(form, "Capture and notifications");
+        _loupe = new CheckBox { Content = "Show the loupe (magnified pixels) next to the cursor while selecting", IsChecked = s.ShowLoupe };
+        form.Children.Add(_loupe);
+        _toastCorner = new ComboBox { ItemsSource = new[] { "Top right", "Top left", "Bottom right", "Bottom left", "Where I last dragged it" }, SelectedIndex = Math.Max(0, Array.IndexOf(Corners, s.ToastCorner)), Width = 220, HorizontalAlignment = HorizontalAlignment.Left };
+        form.Children.Add(Labeled("Show the \"Saved\" notification at (on the monitor the capture was on)", _toastCorner));
 
         Section(form, "Hotkeys");
         form.Children.Add(new TextBlock { Text = "Click a box and press the combination you want.", Opacity = 0.6, FontSize = 12 });
@@ -159,6 +167,8 @@ public sealed class SettingsWindow : Window
         foreach (var (box, apply) in _hotkeys) apply(box.Text!);
         _settings.SaveFolder = string.IsNullOrWhiteSpace(_folder.Text) ? ImageSaver.DefaultFolder : _folder.Text.Trim();
         _settings.CopyToClipboard = _clipboard.IsChecked == true;
+        _settings.ShowLoupe = _loupe.IsChecked == true;
+        _settings.ToastCorner = Corners[Math.Max(0, _toastCorner.SelectedIndex)];
         _settings.TrimOverlap = _trimOverlap.IsChecked == true;
         _settings.CropTop = (int)(_cropTop.Value ?? 0);
         _settings.ScrollDelayMs = (int)(_scrollDelay.Value ?? 400);

@@ -3,10 +3,18 @@
 All notable changes to StitchShot. Dates are release dates; downloads are on the
 [releases page](https://github.com/softviser/stitchshot/releases).
 
-## Unreleased
+## 1.0.3 – 2026-11-09
 
-- Linux archive now includes `stitchshot.png` for an application-menu entry; README
-  has install, update and uninstall steps for macOS and Linux.
+### Added
+- Settings: the loupe next to the cursor can be turned off; the crosshair and the
+  position/colour label stay.
+- Settings: the "Saved" notification can be placed in any corner of the monitor the
+  capture was on. Dragging a notification still moves later ones to that spot.
+- Linux archive now includes `stitchshot.png` for an application-menu entry.
+
+### Changed
+- README and the website have install, update and uninstall steps for macOS and
+  Linux; the website has a new design with copyable commands.
 
 ## 1.0.2 – 2026-11-09
 

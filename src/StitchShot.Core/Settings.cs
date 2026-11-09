@@ -9,6 +9,9 @@ public sealed class Settings
     public string RegionHotkey { get; set; } = OperatingSystem.IsWindows() ? "PrintScreen" : "Ctrl+Shift+4";
     public string FullScreenHotkey { get; set; } = OperatingSystem.IsWindows() ? "Ctrl+PrintScreen" : "Ctrl+Shift+3";
     public bool CopyToClipboard { get; set; } = true;
+    public bool ShowLoupe { get; set; } = true;
+    /// <summary>TopRight, TopLeft, BottomRight, BottomLeft, or Custom (where the user last dragged a notification, ToastX/Y).</summary>
+    public string ToastCorner { get; set; } = "TopRight";
 
     public string StitchStartHotkey { get; set; } = "Ctrl+Shift+S";
     public string StitchCaptureHotkey { get; set; } = "F8";

@@ -31,7 +31,7 @@ public sealed class OverlayWindow : Window
     public Task<CaptureResult?> Result => _view.Result;
 
     // shortcut: one window spans all monitors, so mixed-DPI setups mis-scale secondary screens; upgrade to one window per monitor.
-    public OverlayWindow(SKBitmap frozen, ScreenRect desktop, bool stitchMode = false, bool sessionRunning = false)
+    public OverlayWindow(SKBitmap frozen, ScreenRect desktop, bool stitchMode = false, bool sessionRunning = false, bool showLoupe = true)
     {
         _stitchMode = stitchMode;
         _sessionRunning = sessionRunning;
@@ -47,7 +47,7 @@ public sealed class OverlayWindow : Window
         Width = desktop.Width / _scale;
         Height = desktop.Height / _scale;
 
-        _view = new OverlayView(frozen);
+        _view = new OverlayView(frozen, showLoupe);
         _toolbar = BuildToolbar();
         var canvas = new Canvas();
         canvas.Children.Add(_toolbar);
@@ -137,8 +137,11 @@ sealed class OverlayView : Control
     public event Action? Done;
     public event Action<PixelRect?>? SelectionChanged;
 
-    public OverlayView(SKBitmap frozen)
+    readonly bool _showLoupe;
+
+    public OverlayView(SKBitmap frozen, bool showLoupe)
     {
+        _showLoupe = showLoupe;
         _frozen = frozen;
         _image = ToAvalonia(frozen);
         Focusable = true;
@@ -261,6 +264,13 @@ sealed class OverlayView : Control
         const double gap = 20;
         double textHeight = showHint ? 42 : 20;
         double x = anchor.X + gap, y = anchor.Y + gap;
+        if (!_showLoupe)
+        {
+            var c0 = _frozen.GetPixel(px.X, px.Y);
+            DrawLabel(ctx, $"{px.X}, {px.Y}   #{c0.Red:X2}{c0.Green:X2}{c0.Blue:X2}", new Point(x, y), bounds);
+            if (showHint) DrawLabel(ctx, "Drag to select  ·  Esc cancels", new Point(x, y + 22), bounds);
+            return;
+        }
         if (x + LoupeSize > bounds.Width) x = anchor.X - gap - LoupeSize;
         if (y + LoupeSize + textHeight > bounds.Height) y = anchor.Y - gap - LoupeSize - textHeight;
         var loupe = new Rect(x, y, LoupeSize, LoupeSize);

@@ -15,3 +15,7 @@ site/cache/*
 !site/cache/.gitkeep
 dist/
 publish/
+
+## Design tooling
+.taste-skill/
+*.7z

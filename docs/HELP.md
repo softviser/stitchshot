@@ -41,7 +41,8 @@ While you move the mouse:
 
   - a crosshair spans the whole screen so edges are easy to line up,
   - a loupe next to the cursor shows the pixels under it, magnified, with the
-    X,Y position and the colour as #RRGGBB.
+    X,Y position and the colour as #RRGGBB. The loupe can be turned off in
+    Settings; the position and colour label stays.
 
 Drag to select. While dragging, a second loupe stays pinned on the starting
 corner so both ends can be placed precisely, and the size in pixels is shown
@@ -175,12 +176,13 @@ Esc closes the editor without saving.
 Every capture flashes the captured area white for a moment, so you know the key
 was received even when nothing else changes on screen.
 
-When a file is saved, a small dark notification appears in the top-right corner
-of the monitor the capture was on, with a thumbnail and the file name. It has a folder icon that opens the
-file's folder with the file selected, a pencil icon that opens the image in the
-editor, and an X. It closes by itself after six seconds, but stays while the
-mouse is over it, and it can be dragged anywhere; later notifications appear
-where you left it.
+When a file is saved, a small dark notification appears in a corner of the
+monitor the capture was on (top-right by default; Settings has the four
+corners), with a thumbnail and the file name. It has a folder icon that opens
+the file's folder with the file selected, a pencil icon that opens the image in
+the editor, and an X. It closes by itself after six seconds, but stays while the
+mouse is over it, and it can be dragged anywhere; later notifications then
+appear where you left it, until a corner is chosen again in Settings.
 
 Errors use the same notification and name the log file.
 
@@ -196,6 +198,11 @@ Right-click the tray icon and choose Settings.
                              LaunchAgent on macOS). A packaged (MSIX)
                              install shows a link instead: Windows owns the
                              setting, under Settings > Apps > Startup
+  Show the loupe             the magnified pixels next to the cursor while
+                             selecting; off leaves the crosshair and the
+                             position/colour label
+  Notification position      top right (default), top left, bottom right,
+                             bottom left, or where you last dragged it
   Hotkeys                    click a box, press the combination you want.
                              Duplicates are refused and the box keeps focus
                              until it is changed

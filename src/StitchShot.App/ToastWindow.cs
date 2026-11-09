@@ -13,7 +13,7 @@ namespace StitchShot.App;
 
 /// <summary>
 /// Small notification: what happened, a thumbnail, and a folder icon that reveals the file.
-/// Top-right of the monitor the last capture was on; drag it anywhere and it remembers. Stays while the pointer is over it.
+/// In the chosen corner of the monitor the last capture was on; drag it anywhere and it remembers. Stays while the pointer is over it.
 /// One at a time; a new one replaces the previous.
 /// </summary>
 public sealed class ToastWindow : Window
@@ -90,9 +90,9 @@ public sealed class ToastWindow : Window
         }
     }
 
-    /// <summary>Where the user dragged the last toast, unless that spot is no longer on any screen (monitor unplugged).</summary>
+    /// <summary>Where the user dragged the last toast, if that is the chosen position and the spot is still on a screen (monitor unplugged).</summary>
     PixelPoint? Remembered =>
-        Settings is { ToastX: { } x, ToastY: { } y } && Screens.ScreenFromPoint(new PixelPoint(x, y)) is not null ? new PixelPoint(x, y) : null;
+        Settings is { ToastCorner: "Custom", ToastX: { } x, ToastY: { } y } && Screens.ScreenFromPoint(new PixelPoint(x, y)) is not null ? new PixelPoint(x, y) : null;
 
     static Image Thumbnail(SKBitmap bitmap)
     {
@@ -111,14 +111,18 @@ public sealed class ToastWindow : Window
         var screen = (Anchor is { } a ? Screens.ScreenFromPoint(a) : null) ?? Screens.Primary;
         if (screen is null) return;
         var area = screen.WorkingArea;
-        Position = new PixelPoint(area.Right - (int)(Bounds.Width * RenderScaling) - 16, area.Y + 16);
+        var corner = Settings?.ToastCorner ?? "TopRight";
+        int w = (int)(Bounds.Width * RenderScaling), hgt = (int)(Bounds.Height * RenderScaling);
+        Position = new PixelPoint(
+            corner.EndsWith("Left") ? area.X + 16 : area.Right - w - 16,
+            corner.StartsWith("Bottom") ? area.Bottom - hgt - 16 : area.Y + 16);
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         if (_moved && Settings is { } s)
         {
-            (s.ToastX, s.ToastY) = (Position.X, Position.Y);
+            (s.ToastX, s.ToastY, s.ToastCorner) = (Position.X, Position.Y, "Custom");
             try { s.Save(); } catch (Exception ex) { Log.Write(ex.ToString()); }
         }
         base.OnClosing(e);

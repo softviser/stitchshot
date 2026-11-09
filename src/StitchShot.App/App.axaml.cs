@@ -159,7 +159,7 @@ public partial class App : Application
         var frozen = _capturer.Capture(desktop);
         try
         {
-            _overlay = new OverlayWindow(frozen, desktop, stitchMode, sessionRunning: _stitch is not null);
+            _overlay = new OverlayWindow(frozen, desktop, stitchMode, sessionRunning: _stitch is not null, showLoupe: _settings.ShowLoupe);
             _overlay.Show();
             return (frozen, desktop, await _overlay.Result);
         }

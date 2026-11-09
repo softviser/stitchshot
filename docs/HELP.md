@@ -226,6 +226,10 @@ the capture method used for now.
 
 ### Linux
 
+  - Install: extract the archive somewhere on your PATH, for example
+    ~/.local/bin, and run StitchShot. The README has a desktop entry for the
+    application menu. To update, quit (tray > Exit) and extract the new archive
+    over the old files; settings are kept.
   - Capture works on X11 sessions. On Wayland only X11 (XWayland) windows can
     be seen; log in with an X11 session for now.
   - Copying needs xclip (X11) or wl-copy (Wayland) installed; the error
@@ -237,6 +241,10 @@ the capture method used for now.
 
 ### macOS
 
+  - Install: extract the archive, run `xattr -dr com.apple.quarantine
+    StitchShot.app`, move the app to /Applications and open it. To update, quit
+    (menu bar icon > Exit) and replace the app with the new one; settings and
+    permissions are kept as long as the path stays the same.
   - The first capture triggers the Screen Recording permission dialog, and the
     hotkeys need Accessibility permission. Both are under System Settings >
     Privacy & Security. Restart StitchShot after granting. Without Accessibility

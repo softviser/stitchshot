@@ -35,6 +35,82 @@ The Windows files are not code-signed yet, so SmartScreen shows a warning the fi
 time; "More info" > "Run anyway". Every file has a SHA-256 next to it in
 `SHA256SUMS.txt` or a `.sha256` file.
 
+### macOS
+
+Pick the file for your chip: `osx-arm64` for Apple silicon (M1 and later), `osx-x64`
+for Intel. `uname -m` prints `arm64` or `x86_64` if you are not sure.
+
+```bash
+tar xzf StitchShot-x.y.z-osx-arm64.tar.gz
+xattr -dr com.apple.quarantine StitchShot.app
+mv StitchShot.app /Applications/
+open /Applications/StitchShot.app
+```
+
+The `xattr` line is needed because the app is not notarised; without it macOS says the
+developer cannot be verified. Alternatively open the app once, let macOS refuse, then
+use "Open Anyway" under System Settings > Privacy & Security.
+
+First run: the first capture asks for Screen Recording, and the hotkeys need
+Accessibility. Both are under System Settings > Privacy & Security; tick StitchShot in
+each list, then quit (menu bar icon > Exit) and open it again. Until Accessibility is
+granted the app shows "Hotkeys are off" at start; the menu bar menu still works.
+StitchShot has no Dock icon; look for it in the menu bar.
+
+Start at login is the checkbox in Settings; it writes a LaunchAgent that points at the
+app's current location, so if you move the app later, untick and tick it again.
+
+Update: quit StitchShot, then repeat the four lines above with the new file. The
+`mv` replaces the old bundle (answer yes if asked). Settings live in
+`~/.config/StitchShot/settings.json` and survive updates. Permissions stay granted as
+long as the app keeps its path.
+
+Uninstall: untick start at login, quit, delete `/Applications/StitchShot.app`. To
+remove every trace: `rm -rf ~/.config/StitchShot ~/Library/LaunchAgents/com.softviser.stitchshot.plist`.
+
+### Linux
+
+Needs an X11 session (on Wayland, only XWayland windows are captured for now),
+`libX11`, and `xclip` (X11) or `wl-copy` (Wayland) for the clipboard. The tray icon
+needs a StatusNotifier host: KDE, XFCE, Cinnamon and MATE have one; GNOME needs the
+AppIndicator extension.
+
+```bash
+# Debian / Ubuntu: sudo apt install libx11-6 xclip
+# Fedora:          sudo dnf install libX11 xclip
+# Arch:            sudo pacman -S libx11 xclip
+mkdir -p ~/.local/bin
+tar xzf StitchShot-x.y.z-linux-x64.tar.gz -C ~/.local/bin
+~/.local/bin/StitchShot
+```
+
+The archive holds the executable and `stitchshot.png`. For an entry in the
+application menu, save this as `~/.local/share/applications/stitchshot.desktop`
+(adjust the paths if you extracted elsewhere):
+
+```ini
+[Desktop Entry]
+Type=Application
+Name=StitchShot
+Comment=Screenshot tool that stitches several captures into one tall image
+Exec=/home/you/.local/bin/StitchShot
+Icon=/home/you/.local/bin/stitchshot.png
+Categories=Utility;Graphics;
+StartupNotify=false
+```
+
+Start at login is the checkbox in Settings; it writes
+`~/.config/autostart/stitchshot.desktop` with the executable's current path, so after
+moving the file untick and tick it again.
+
+Update: quit StitchShot (tray icon > Exit), extract the new archive over the old
+files with the same `tar` line, start it again. Settings live in
+`~/.config/StitchShot/settings.json` and survive updates.
+
+Uninstall: untick start at login, quit, then
+`rm ~/.local/bin/StitchShot ~/.local/bin/stitchshot.png ~/.local/share/applications/stitchshot.desktop`
+and, to remove the settings, `rm -rf ~/.config/StitchShot`.
+
 ## Platforms
 
 | | Capture | Clipboard | Start at login | Notes |

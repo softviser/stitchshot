@@ -3,6 +3,11 @@
 All notable changes to StitchShot. Dates are release dates; downloads are on the
 [releases page](https://github.com/softviser/stitchshot/releases).
 
+## Unreleased
+
+- Linux archive now includes `stitchshot.png` for an application-menu entry; README
+  has install, update and uninstall steps for macOS and Linux.
+
 ## 1.0.2 – 2026-11-09
 
 ### Fixed

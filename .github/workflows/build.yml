@@ -155,7 +155,8 @@ jobs:
             cp installer/macos/StitchShot.icns "$app/Contents/Resources/StitchShot.icns"
             tar -C publish -czf "release/$NAME.tar.gz" StitchShot.app
           else
-            tar -C publish -czf "release/$NAME.tar.gz" StitchShot
+            cp design/logo/dist/web/icon-512.png publish/stitchshot.png   # for the user's .desktop entry
+            tar -C publish -czf "release/$NAME.tar.gz" StitchShot stitchshot.png
           fi
           (cd release && sha256sum "$NAME.tar.gz" > "$NAME.sha256")
 

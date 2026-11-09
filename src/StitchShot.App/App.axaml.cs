@@ -64,8 +64,8 @@ public partial class App : Application
 
         _tray = new TrayIcon { Icon = TrayIconImage.Create(), Menu = menu };
         _tray.Clicked += (_, _) => _ = CaptureRegionAsync();
+        UpdateTooltip(); // before SetIcons: macOS rejects a null tooltip when the icon is attached
         TrayIcon.SetIcons(this, new TrayIcons { _tray });
-        UpdateTooltip();
 
         _hook = new SimpleGlobalHook();
         _hook.KeyPressed += OnKeyPressed;

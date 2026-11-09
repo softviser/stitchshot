@@ -3,23 +3,24 @@
 require __DIR__ . '/inc.php';
 
 $pages = [
-    'help'    => ['docs/HELP.md', 'Help', 'The StitchShot manual: capturing, stitching, the editor, settings, platform notes and troubleshooting.'],
-    'readme'  => ['README.md', 'README', 'Overview, installation, platforms and how to build StitchShot from source.'],
-    'plan'    => ['PLAN.md', 'Roadmap', 'What is planned for StitchShot and in which order.'],
-    'logo'    => ['design/logo/GUIDELINES.md', 'Logo guidelines', 'Files, colours, clear space and minimum sizes of the StitchShot logo.'],
-    'license' => ['LICENSE', 'License', 'The MIT license StitchShot is released under.'],
+    'help'      => ['docs/HELP.md', 'Help', 'The StitchShot manual: capturing, stitching, the editor, settings, platform notes and troubleshooting.'],
+    'readme'    => ['README.md', 'README', 'Overview, installation, platforms and how to build StitchShot from source.'],
+    'changelog' => ['CHANGELOG.md', 'Changelog', 'What changed in each StitchShot release.'],
+    'plan'      => ['PLAN.md', 'Roadmap', 'What is planned for StitchShot and in which order.'],
+    'logo'      => ['design/logo/GUIDELINES.md', 'Logo guidelines', 'Files, colours, clear space and minimum sizes of the StitchShot logo.'],
+    'license'   => ['LICENSE', 'License', 'The MIT license StitchShot is released under.'],
 ];
 $key = $_GET['p'] ?? '';
 
 if (!isset($pages[$key])) {
-    page_head('Docs', 'Documentation for StitchShot: the manual, README, roadmap, logo guidelines and license.', 'Docs');
+    page_head('Documentation', 'Documentation for StitchShot: the manual, README, changelog, roadmap, logo guidelines and license.', 'Help', 'docs.php');
     ?>
-<section class="wrap narrow">
+<section class="wrap narrow doc">
   <h1>Documentation</h1>
-  <p class="lead">Everything is kept in the <a href="<?= REPO_URL ?>" rel="noopener">repository</a> and shown here from the main branch.</p>
+  <p class="intro">Everything is kept in the <a href="<?= REPO_URL ?>" rel="noopener">repository</a> and shown here from the main branch. The <a href="install.php">install guide</a> is on this site only.</p>
   <div class="cards">
     <?php foreach ($pages as $k => [$path, $title, $desc]): ?>
-    <a class="card" href="docs.php?p=<?= $k ?>"><h3><?= h($title) ?></h3><p><?= h($desc) ?></p><span class="path"><?= h($path) ?></span></a>
+    <a class="cardlink" href="docs.php?p=<?= $k ?>"><h3><?= h($title) ?></h3><p><?= h($desc) ?></p><span class="path"><?= h($path) ?></span></a>
     <?php endforeach; ?>
   </div>
 </section>
@@ -30,10 +31,20 @@ if (!isset($pages[$key])) {
 
 [$path, $title, $desc] = $pages[$key];
 $md = gh_raw($path);
-page_head($title, $desc, $title === 'Help' ? 'Help' : 'Docs');
+$jsonld = ['@context' => 'https://schema.org', '@graph' => [
+    org_jsonld(),
+    ['@type' => 'BreadcrumbList', 'itemListElement' => [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => 'StitchShot', 'item' => SITE_URL],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Documentation', 'item' => SITE_URL . 'docs.php'],
+        ['@type' => 'ListItem', 'position' => 3, 'name' => $title, 'item' => SITE_URL . 'docs.php?p=' . $key],
+    ]],
+    ['@type' => 'TechArticle', 'headline' => $title . ' · StitchShot', 'description' => $desc, 'url' => SITE_URL . 'docs.php?p=' . $key,
+     'author' => ['@id' => MAKER_URL . '/#org'], 'publisher' => ['@id' => MAKER_URL . '/#org'], 'about' => ['@id' => SITE_URL . '#app'], 'inLanguage' => 'en'],
+]];
+page_head($title, $desc, $title === 'Help' ? 'Help' : '', 'docs.php?p=' . $key, ['jsonld' => $jsonld, 'type' => 'article']);
 ?>
 <section class="wrap doc">
-  <p class="crumbs"><a href="docs.php">Docs</a> › <?= h($title) ?> <span class="path"><a href="<?= REPO_URL ?>/blob/main/<?= h($path) ?>" rel="noopener"><?= h($path) ?> on GitHub</a></span></p>
+  <p class="crumbs"><a href="docs.php">Documentation</a> <span>›</span> <?= h($title) ?> <span>·</span> <a href="<?= REPO_URL ?>/blob/main/<?= h($path) ?>" rel="noopener"><?= h($path) ?> on GitHub</a></p>
 <?php if ($md === null): ?>
   <h1><?= h($title) ?></h1>
   <p class="notice">Could not load <code><?= h($path) ?></code> right now. Read it <a href="<?= REPO_URL ?>/blob/main/<?= h($path) ?>" rel="noopener">on GitHub</a>.</p>

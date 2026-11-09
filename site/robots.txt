@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /stitchshot/cache/
+
+Sitemap: https://svsr.net/stitchshot/sitemap.xml

@@ -5,8 +5,9 @@ namespace StitchShot.Core;
 public sealed class Settings
 {
     public string SaveFolder { get; set; } = ImageSaver.DefaultFolder;
-    public string RegionHotkey { get; set; } = "PrintScreen";
-    public string FullScreenHotkey { get; set; } = "Ctrl+PrintScreen";
+    // Mac keyboards have no PrintScreen and Linux desktops usually own it, so those get Ctrl+Shift+4 / 3 (the macOS keys with Ctrl instead of Cmd).
+    public string RegionHotkey { get; set; } = OperatingSystem.IsWindows() ? "PrintScreen" : "Ctrl+Shift+4";
+    public string FullScreenHotkey { get; set; } = OperatingSystem.IsWindows() ? "Ctrl+PrintScreen" : "Ctrl+Shift+3";
     public bool CopyToClipboard { get; set; } = true;
 
     public string StitchStartHotkey { get; set; } = "Ctrl+Shift+S";

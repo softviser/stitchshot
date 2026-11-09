@@ -22,8 +22,8 @@ scrolls becomes one image. Everything else in the app exists to make that pleasa
 src/StitchShot.Core              pure logic: stitching, overlap detection, annotation model, settings, filename template
 src/StitchShot.App               Avalonia: tray, capture overlay, editor, HUD, settings window
 src/StitchShot.Platform.Windows  IScreenCapturer, active-window rect, clipboard bitmap, start-with-Windows
-src/StitchShot.Platform.Linux    stub in v1
-src/StitchShot.Platform.Mac      stub in v1
+src/StitchShot.Platform.Linux    X11 capturer, xclip/wl-copy clipboard, XDG autostart
+src/StitchShot.Platform.Mac      screencapture-based capturer, AppleScript clipboard, LaunchAgent
 tests/StitchShot.Core.Tests      xUnit; stitching, overlap, template are the parts worth testing
 ```
 

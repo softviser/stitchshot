@@ -18,7 +18,7 @@ public sealed class FirstRunWindow : Window
         CanResize = false;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-        var yes = new Button { Content = "Yes, start with Windows", IsDefault = true };
+        var yes = new Button { Content = "Yes, start at login", IsDefault = true };
         var no = new Button { Content = "Not now", IsCancel = true };
         yes.Click += (_, _) => { startup.Enabled = true; Done(); };
         no.Click += (_, _) => Done();

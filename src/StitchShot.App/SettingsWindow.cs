@@ -50,7 +50,7 @@ public sealed class SettingsWindow : Window
         form.Children.Add(folderRow);
         _clipboard = new CheckBox { Content = "Also copy every capture to the clipboard", IsChecked = s.CopyToClipboard };
         form.Children.Add(_clipboard);
-        var startWithOs = new CheckBox { Content = "Start StitchShot when I log in to Windows", IsChecked = startup.Enabled };
+        var startWithOs = new CheckBox { Content = "Start StitchShot when I log in", IsChecked = startup.Enabled };
         startWithOs.IsCheckedChanged += (_, _) =>
         {
             try { startup.Enabled = startWithOs.IsChecked == true; }

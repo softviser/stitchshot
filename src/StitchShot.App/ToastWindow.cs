@@ -53,7 +53,7 @@ public sealed class ToastWindow : Window
         if (path is not null)
             row.Children.Add(IconButton.Create(IconButton.Folder, "Show in folder", () =>
             {
-                Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
+                Shell.Reveal(path);
                 Close();
             }));
         if (edit is not null) row.Children.Add(IconButton.Create(IconButton.Pencil, "Annotate in the editor", () => { edit(); Close(); }));

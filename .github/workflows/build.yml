@@ -1,4 +1,5 @@
-# Builds both release executables from source. Runs when a version tag is pushed,
+# Builds the Windows executables (signed when SignPath is configured) and the Linux and macOS
+# archives from source. Runs when a version tag is pushed,
 # or by hand from the Actions tab.
 #
 # Signing starts once these are set under Settings > Secrets and variables > Actions:
@@ -92,5 +93,47 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: stitchshot-${{ steps.version.outputs.value }}
+          path: release/
+          if-no-files-found: error
+
+  build-unix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rid: [linux-x64, osx-x64, osx-arm64]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Read version
+        id: version
+        run: |
+          version=$(grep -oPm1 '(?<=<Version>)[^<]+' src/StitchShot.App/StitchShot.App.csproj)
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Test
+        run: dotnet test tests/StitchShot.Core.Tests -c Release
+
+      - name: Publish with .NET bundled
+        run: >
+          dotnet publish src/StitchShot.App -c Release -r ${{ matrix.rid }} --self-contained
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -p:DebugType=none -o publish
+
+      - name: Archive
+        env:
+          NAME: StitchShot-${{ steps.version.outputs.value }}-${{ matrix.rid }}
+        run: |
+          mkdir -p release
+          tar -C publish -czf "release/$NAME.tar.gz" StitchShot
+          (cd release && sha256sum "$NAME.tar.gz" > "$NAME.sha256")
+
+      - name: Upload
+        uses: actions/upload-artifact@v7
+        with:
+          name: stitchshot-${{ steps.version.outputs.value }}-${{ matrix.rid }}
           path: release/
           if-no-files-found: error

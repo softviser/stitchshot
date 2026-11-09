@@ -13,6 +13,8 @@ using SharpHook.Data;
 using SharpHook.Simulation;
 using SkiaSharp;
 using StitchShot.Core;
+using StitchShot.Platform.Linux;
+using StitchShot.Platform.Mac;
 using StitchShot.Platform.Windows;
 
 namespace StitchShot.App;
@@ -53,11 +55,7 @@ public partial class App : Application
         menu.Items.Add(MenuItem("Capture full screen", CaptureFullScreen));
         menu.Items.Add(MenuItem("Start stitch session", () => _ = StartStitchAsync()));
         menu.Items.Add(new NativeMenuItemSeparator());
-        menu.Items.Add(MenuItem("Open screenshots folder", () =>
-        {
-            Directory.CreateDirectory(_settings.SaveFolder);
-            Process.Start(new ProcessStartInfo(_settings.SaveFolder) { UseShellExecute = true });
-        }));
+        menu.Items.Add(MenuItem("Open screenshots folder", () => Shell.OpenFolder(_settings.SaveFolder)));
         menu.Items.Add(MenuItem("Settings…", OpenSettings));
         menu.Items.Add(MenuItem("Help", HelpWindow.Open));
         menu.Items.Add(new NativeMenuItemSeparator());
@@ -79,7 +77,9 @@ public partial class App : Application
     public static (IScreenCapturer, IImageClipboard, IStartupRegistration) CreatePlatform()
     {
         if (OperatingSystem.IsWindows()) return (new GdiScreenCapturer(), new WindowsImageClipboard(), new WindowsStartupRegistration());
-        throw new PlatformNotSupportedException("StitchShot currently captures on Windows only; Linux and macOS are planned.");
+        if (OperatingSystem.IsLinux()) return (new X11ScreenCapturer(), new LinuxImageClipboard(), new LinuxStartupRegistration());
+        if (OperatingSystem.IsMacOS()) return (new MacScreenCapturer(), new MacImageClipboard(), new MacStartupRegistration());
+        throw new PlatformNotSupportedException("StitchShot runs on Windows, Linux (X11) and macOS.");
     }
 
     void ApplyHotkeys()

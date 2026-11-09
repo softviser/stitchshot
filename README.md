@@ -16,9 +16,16 @@ Status: early development, nothing to download yet. See [PLAN.md](PLAN.md). Usag
 
 ## Platforms
 
-Windows first. The app is built with Avalonia and SkiaSharp so the UI and the
-stitching code run on Linux and macOS too; only the thin screen-capture layer is
-per-OS and those two are not written yet.
+| | Capture | Clipboard | Start at login | Notes |
+|---|---|---|---|---|
+| Windows | GDI BitBlt, all monitors | native | Run key | the reference platform |
+| Linux | X11 (XGetImage), all monitors | `xclip` or `wl-copy` | XDG autostart | Wayland capture not yet; tray needs a StatusNotifier host |
+| macOS | `screencapture`, main display | AppleScript pasteboard | LaunchAgent | needs Screen Recording + Accessibility permission |
+
+The UI, hotkeys, stitching and the editor are the same code everywhere (Avalonia,
+SkiaSharp, SharpHook). Only `src/StitchShot.Platform.*` differs: one small class
+each for capture, clipboard and startup registration. Linux and macOS builds are
+produced by CI but have had far less testing than Windows; reports welcome.
 
 ## Build
 
@@ -29,6 +36,9 @@ dotnet build
 dotnet test
 dotnet run --project src/StitchShot.App
 ```
+
+Linux needs `libX11` at runtime and `xclip` (X11) or `wl-copy` (Wayland) for the
+clipboard. macOS asks for Screen Recording and Accessibility permissions on first use.
 
 `StitchShot --fullscreen` captures the whole desktop to the screenshots folder and the
 clipboard without starting the tray app; useful for scripts and smoke tests.

@@ -5,7 +5,8 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>0.1.0</Version>
+    <ApplicationIcon>Assets/StitchShot.ico</ApplicationIcon>
+    <Version>1.0.0</Version>
     <AssemblyName>StitchShot</AssemblyName>
     <Product>StitchShot</Product>
     <Company>Softviser Yazılım</Company>

@@ -70,7 +70,11 @@ public partial class App : Application
         _hook.KeyPressed += OnKeyPressed;
         _hook.RunAsync(GlobalHookType.Keyboard).ContinueWith(t => Log.Write($"hook stopped: {t.Exception?.GetBaseException().Message ?? "ok"}"));
         Log.Write("tray and hook up");
-        if (_firstRun) new FirstRunWindow(_settings, _startup).Show();
+        if (_firstRun)
+        {
+            if (_startup.Enabled) _settings.Save(); // the installer already asked; just mark the first run done
+            else new FirstRunWindow(_settings, _startup).Show();
+        }
         base.OnFrameworkInitializationCompleted();
     }
 

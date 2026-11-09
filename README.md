@@ -12,7 +12,23 @@ Also does the usual: region / window / full screen capture with a frozen screen,
 full-width crosshair, pixel magnifier with coordinates and color, and a small
 annotation editor (rectangle, ellipse, line, dashed line, arrow, pen, text, blur).
 
-Status: early development, nothing to download yet. See [PLAN.md](PLAN.md). Usage: [docs/HELP.md](docs/HELP.md).
+Usage: [docs/HELP.md](docs/HELP.md). Roadmap: [PLAN.md](PLAN.md).
+
+## Install
+
+Downloads are on the [Releases](https://github.com/softviser/stitchshot/releases) page.
+
+| Platform | File | Notes |
+|---|---|---|
+| Windows | `StitchShot-x.y.z-win-x64-setup.exe` | installer: Start Menu entry, optional start at login, uninstaller; installs per user, no admin rights |
+| Windows, portable | `StitchShot-x.y.z-win-x64.exe` | one file, run it from anywhere; .NET is bundled |
+| Windows, small | `StitchShot-x.y.z-win-x64-requires-net8.exe` | needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) |
+| Linux | `StitchShot-x.y.z-linux-x64.tar.gz` | extract and run `./StitchShot`; needs `libX11` and `xclip` or `wl-copy` |
+| macOS | `StitchShot-x.y.z-osx-arm64.tar.gz` (Apple silicon), `-osx-x64` (Intel) | extract, `xattr -d com.apple.quarantine StitchShot`, run; grant Screen Recording and Accessibility when asked |
+
+The Windows files are not code-signed yet, so SmartScreen shows a warning the first
+time; "More info" > "Run anyway". Every file has a SHA-256 next to it in
+`SHA256SUMS.txt` or a `.sha256` file.
 
 ## Platforms
 

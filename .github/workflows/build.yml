@@ -1,6 +1,6 @@
-# Builds the Windows executables (signed when SignPath is configured) and the Linux and macOS
-# archives from source. Runs when a version tag is pushed,
-# or by hand from the Actions tab.
+# Builds the Windows executables and installer (signed when SignPath is configured) and the
+# Linux and macOS archives from source. Runs when a version tag is pushed, or by hand from
+# the Actions tab. A tag push also publishes a GitHub release with every file attached.
 #
 # Signing starts once these are set under Settings > Secrets and variables > Actions:
 #   variable SIGNPATH_ORGANIZATION_ID, secret SIGNPATH_API_TOKEN
@@ -35,6 +35,9 @@ jobs:
             throw "Tag $env:GITHUB_REF_NAME does not match project version $version"
           }
           "value=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Test
+        run: dotnet test tests/StitchShot.Core.Tests -c Release
 
       - name: Publish with .NET bundled
         run: >
@@ -79,6 +82,19 @@ jobs:
           wait-for-completion-timeout-in-seconds: 86400
           output-artifact-directory: signed
 
+      # shortcut: the installer wraps the signed exe but is not signed itself; add a second
+      # SignPath round for it once signing is in place and SmartScreen complains about the setup.
+      - name: Build installer
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          $folder = if (Test-Path signed) { 'signed' } else { 'dist' }
+          $iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) { $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
+          & $iscc "/DMyAppVersion=$env:VERSION" "/DSourceExe=$PWD\$folder\StitchShot-$env:VERSION-win-x64.exe" "/O$PWD\$folder" installer\StitchShot.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with $LASTEXITCODE" }
+
       - name: Write checksums
         shell: pwsh
         run: |
@@ -92,7 +108,7 @@ jobs:
       - name: Upload release files
         uses: actions/upload-artifact@v7
         with:
-          name: stitchshot-${{ steps.version.outputs.value }}
+          name: stitchshot-${{ steps.version.outputs.value }}-windows
           path: release/
           if-no-files-found: error
 
@@ -137,3 +153,23 @@ jobs:
           name: stitchshot-${{ steps.version.outputs.value }}-${{ matrix.rid }}
           path: release/
           if-no-files-found: error
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: [build, build-unix]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download build outputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --pattern 'stitchshot-*' --dir files
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME" files/*/* --repo "$GITHUB_REPOSITORY"
+          --title "StitchShot ${GITHUB_REF_NAME#v}" --generate-notes

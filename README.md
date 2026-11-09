@@ -17,7 +17,7 @@ Also does the usual: region / window / full screen capture with a frozen screen,
 full-width crosshair, pixel magnifier with coordinates and color, and a small
 annotation editor (rectangle, ellipse, line, dashed line, arrow, pen, text, blur).
 
-Website: [svsr.net/stitchshot](https://svsr.net/stitchshot). Usage: [docs/HELP.md](docs/HELP.md). Roadmap: [PLAN.md](PLAN.md).
+Website: [svsr.net/stitchshot](https://svsr.net/stitchshot). Usage: [docs/HELP.md](docs/HELP.md). Changes: [CHANGELOG.md](CHANGELOG.md). Roadmap: [PLAN.md](PLAN.md).
 
 ## Install
 

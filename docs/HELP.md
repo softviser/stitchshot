@@ -193,8 +193,8 @@ Right-click the tray icon and choose Settings.
   Copy to clipboard          put every capture on the clipboard as well
   Start at login             register StitchShot to start with the OS
                              (Run key on Windows, autostart entry on Linux,
-                             LaunchAgent on macOS). The Microsoft Store
-                             version shows a link instead: Windows owns the
+                             LaunchAgent on macOS). A packaged (MSIX)
+                             install shows a link instead: Windows owns the
                              setting, under Settings > Apps > Startup
   Hotkeys                    click a box, press the combination you want.
                              Duplicates are refused and the box keeps focus
@@ -261,5 +261,5 @@ the capture method used for now.
                                        macOS    $TMPDIR/StitchShot.log
 
 "About StitchShot" in the tray menu (or the About button in Settings) shows the
-version, the log file location, and links to the website (softviser.com.tr/stitchshot)
+version, the log file location, and links to the website (svsr.net/stitchshot)
 and the GitHub project, where issues can be reported.

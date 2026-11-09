@@ -9,7 +9,7 @@ namespace StitchShot.App;
 /// <summary>Version, maker, licence and the places to get help or report a bug.</summary>
 public sealed class AboutWindow : Window
 {
-    public const string Website = "https://softviser.com.tr/stitchshot";
+    public const string Website = "https://svsr.net/stitchshot";
     public const string Repository = "https://github.com/softviser/stitchshot";
 
     static AboutWindow? _open;

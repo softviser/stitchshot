@@ -1,5 +1,5 @@
 <?php
-// Privacy policy. Required by the Microsoft Store listing; short because the app collects nothing.
+// Privacy policy; short because the app collects nothing.
 require __DIR__ . '/inc.php';
 page_head('Privacy', 'StitchShot collects no data: no accounts, no telemetry, no network connections from the app.', 'Docs');
 ?>

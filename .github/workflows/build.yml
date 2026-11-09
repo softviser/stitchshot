@@ -1,7 +1,6 @@
 # Builds the Windows executables and installer (signed when SignPath is configured) and the
 # Linux and macOS archives from source. Runs when a version tag is pushed, or by hand from
-# the Actions tab. A tag push also publishes a GitHub release with every file attached, except the
-# Store package (artifact msix-<version>), which is unsigned and goes to Partner Center by hand.
+# the Actions tab. A tag push also publishes a GitHub release with every file attached.
 #
 # Signing starts once these are set under Settings > Secrets and variables > Actions:
 #   variable SIGNPATH_ORGANIZATION_ID, secret SIGNPATH_API_TOKEN
@@ -59,17 +58,6 @@ jobs:
           New-Item -ItemType Directory dist | Out-Null
           Copy-Item publish/full/StitchShot.exe "dist/StitchShot-$env:VERSION-win-x64.exe"
           Copy-Item publish/small/StitchShot.exe "dist/StitchShot-$env:VERSION-win-x64-requires-net8.exe"
-
-      - name: Build Store package
-        shell: pwsh
-        run: installer/msix/build.ps1 -Version ${{ steps.version.outputs.value }} -Output msix
-
-      - name: Upload Store package
-        uses: actions/upload-artifact@v7
-        with:
-          name: msix-${{ steps.version.outputs.value }}
-          path: msix/*.msix
-          if-no-files-found: error
 
       - name: Upload unsigned executables
         id: unsigned

@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 const REPO = 'softviser/stitchshot';
 const REPO_URL = 'https://github.com/' . REPO;
-const SITE_URL = 'https://softviser.com.tr/stitchshot/';
+const SITE_URL = 'https://svsr.net/stitchshot/';
 const TAGLINE = 'Screenshot tool that stitches several captures into one tall image.';
 
 function h(?string $s): string { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }

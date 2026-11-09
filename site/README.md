@@ -1,6 +1,6 @@
 # StitchShot website
 
-The pages behind https://softviser.com.tr/stitchshot/. Plain PHP, no framework, no build step.
+The pages behind https://svsr.net/stitchshot/. Plain PHP, no framework, no build step.
 
     index.php       product page: features, screenshots, downloads, release notes, docs, project
     docs.php        renders HELP.md, README.md, PLAN.md, the logo guidelines and LICENSE (?p=help|readme|plan|logo|license)

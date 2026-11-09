@@ -90,6 +90,7 @@ public sealed class SettingsWindow : Window
         _cropTop = Number(s.CropTop, 0, 2000);
         form.Children.Add(Labeled("Crop this many pixels from the top of frames 2+ (sticky headers)", _cropTop));
         _scrollDelay = Number(s.ScrollDelayMs, 0, 5000);
+        _scrollDelay.Width = 160; // four digits plus the spin buttons
         form.Children.Add(Labeled("Wait after Page Down, milliseconds", _scrollDelay));
 
         var save = new Button { Content = "Save", IsDefault = true };

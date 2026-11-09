@@ -1,4 +1,9 @@
-# StitchShot
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="design/logo/dist/stitchshot-horizontal-on-dark.svg">
+    <img src="design/logo/dist/stitchshot-horizontal.svg" alt="StitchShot" width="440">
+  </picture>
+</p>
 
 Screenshot tool that stitches several captures into one tall image.
 
@@ -58,6 +63,10 @@ clipboard. macOS asks for Screen Recording and Accessibility permissions on firs
 
 `StitchShot --fullscreen` captures the whole desktop to the screenshots folder and the
 clipboard without starting the tray app; useful for scripts and smoke tests.
+
+## Logo
+
+Master files, colours and usage notes are in [design/logo](design/logo/GUIDELINES.md).
 
 ## License
 

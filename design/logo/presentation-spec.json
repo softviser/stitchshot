@@ -1,0 +1,37 @@
+{
+  "brand": "StitchShot",
+  "tagline": "Screenshots, stitched",
+  "brief": "An open-source desktop screenshot tool for Windows, Linux and macOS. Its one unusual trick: select a region once, press a key for every capture, and the shots are appended into a single tall image. Used by developers, QA and documentation people; the GitHub README and the system tray are its main stages.",
+  "adjectives": ["precise", "quick", "unobtrusive", "joined-up"],
+  "criteria": "Reads at 16 px in a monochrome tray, works in one colour, says 'capture + join' without a camera, scissors or lens.",
+  "industry": "software",
+  "nav": ["Download", "Help", "GitHub"],
+  "brand_color": "#2457C5",
+  "greyscale": false,
+  "final": true,
+  "designer": "Softviser",
+  "round": 2,
+  "concepts": [
+    {
+      "name": "Seam",
+      "symbol": "dist/stitchshot-symbol.svg",
+      "lockup": "dist/stitchshot-horizontal.svg",
+      "stacked": "dist/stitchshot-stacked.svg",
+      "avatar": "dist/stitchshot-app-icon.svg",
+      "symbol_on_tile": "dist/stitchshot-symbol-on-dark.svg",
+      "stacked_on_tile": "dist/stitchshot-stacked-on-dark.svg",
+      "symbol_on_dark": "dist/stitchshot-symbol-on-dark.svg",
+      "lockup_on_dark": "dist/stitchshot-horizontal-on-dark.svg",
+      "stacked_on_dark": "dist/stitchshot-stacked-on-dark.svg",
+      "idea": "One tall frame whose middle bar is a running stitch: two shots joined by the selection marquee itself.",
+      "rationale": [
+        "The dashed line is both the selection marquee and the stitch, so the mark says capture and join in one shape",
+        "A tall frame hints at the tall image the tool produces",
+        "Built on an 8-unit grid with one outer radius; a 3-stitch cut keeps it crisp at 16 px",
+        "Seam Blue with Thread Yellow stitches is ownable next to ShareX's flat blue, Snagit's red and Greenshot's green"
+      ]
+    }
+  ],
+  "recommendation": "Seam, in Seam Blue (#2457C5) with Thread Yellow (#FFC43D) stitches on tiles and dark grounds; one-colour blue or black elsewhere.",
+  "next_steps": ["Replace the app icon, tray icon and README header", "Upload the social preview to the GitHub repository settings", "Trademark search before any commercial use"]
+}

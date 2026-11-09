@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 256" width="980" height="256" role="img" aria-labelledby="t">
+  <title id="t">StitchShot lockup A</title>
+  <g id="symbol">
+  
+  <g id="symbol" fill="#000">
+    <path fill-rule="evenodd" d="M56 20 H200 A28 28 0 0 1 228 48 V208 A28 28 0 0 1 200 236 H56 A28 28 0 0 1 28 208 V48 A28 28 0 0 1 56 20 Z
+      M56 44 A4 4 0 0 0 52 48 V208 A4 4 0 0 0 56 212 H200 A4 4 0 0 0 204 208 V48 A4 4 0 0 0 200 44 Z"/>
+    <rect x="52" y="118" width="20" height="20"/>
+    <rect x="85" y="118" width="20" height="20"/>
+    <rect x="118" y="118" width="20" height="20"/>
+    <rect x="151" y="118" width="20" height="20"/>
+    <rect x="184" y="118" width="20" height="20"/>
+  </g>
+</g>
+  <!-- exploration: live text; final wordmark will be outlined -->
+  <text id="wordmark" x="300" y="174" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-weight="600" font-size="124" letter-spacing="-2" fill="#000">StitchShot</text>
+</svg>

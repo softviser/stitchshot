@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 256" width="980" height="256" role="img" aria-labelledby="t">
+  <title id="t">StitchShot lockup B</title>
+  <g id="symbol">
+  
+  <!-- exploration: stroked + dashed; the master will be outlined paths -->
+  <path id="symbol" fill="none" stroke="#000" stroke-width="28" stroke-linecap="butt" stroke-dasharray="26 16"
+        d="M169.6 104.0 A48 48 0 1 0 128 128 A48 48 0 1 1 86.4 200.0"/>
+</g>
+  <!-- exploration: live text; final wordmark will be outlined -->
+  <text id="wordmark" x="300" y="174" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-weight="600" font-size="124" letter-spacing="-2" fill="#000">StitchShot</text>
+</svg>

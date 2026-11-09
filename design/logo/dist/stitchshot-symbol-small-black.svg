@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="t">
+  <title id="t">StitchShot logo, small sizes</title>
+  <g id="symbol" fill="#000">
+    <path fill-rule="evenodd" d="M56 20 H200 A28 28 0 0 1 228 48 V208 A28 28 0 0 1 200 236 H56 A28 28 0 0 1 28 208 V48 A28 28 0 0 1 56 20 Z M62 52 A2 2 0 0 0 60 54 V202 A2 2 0 0 0 62 204 H194 A2 2 0 0 0 196 202 V54 A2 2 0 0 0 194 52 Z"/>
+    <rect x="60" y="110" width="32" height="28"/>
+    <rect x="112" y="110" width="32" height="28"/>
+    <rect x="164" y="110" width="32" height="28"/>
+  </g>
+</svg>

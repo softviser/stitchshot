@@ -67,7 +67,7 @@ public sealed class OverlayWindow : Window
         else
         {
             row.Children.Add(IconButton.Create(IconButton.Save, "Save to file (Enter)", () => _view.Confirm(CaptureAction.Save)));
-            row.Children.Add(IconButton.Create(IconButton.Copy, "Copy to clipboard (Ctrl+C)", () => _view.Confirm(CaptureAction.Copy)));
+            row.Children.Add(IconButton.Create(IconButton.Copy, $"Copy to clipboard ({Keys.Cmd}+C)", () => _view.Confirm(CaptureAction.Copy)));
             row.Children.Add(IconButton.Create(IconButton.Pencil, "Annotate in the editor (E)", () => _view.Confirm(CaptureAction.Edit)));
         }
         row.Children.Add(IconButton.Create(IconButton.Close, "Cancel (Esc)", _view.CancelAndClose));
@@ -104,6 +104,8 @@ public sealed class OverlayWindow : Window
         base.OnOpened(e);
         Activate();
         _view.Focus();
+        // macOS may move or shrink a window that covers the menu bar; the log shows what the overlay really got.
+        Log.Write($"overlay at {Position}, asked {Width}x{Height}, got {Bounds.Width}x{Bounds.Height} @ {RenderScaling}, active {IsActive}");
     }
 
     protected override void OnClosed(EventArgs e)
@@ -111,6 +113,13 @@ public sealed class OverlayWindow : Window
         _view.Cancel();
         base.OnClosed(e);
     }
+}
+
+/// <summary>The shortcut modifier: Cmd on macOS, Ctrl elsewhere.</summary>
+static class Keys
+{
+    public static readonly KeyModifiers CmdModifier = OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
+    public static readonly string Cmd = OperatingSystem.IsMacOS() ? "Cmd" : "Ctrl";
 }
 
 sealed class OverlayView : Control
@@ -161,6 +170,7 @@ sealed class OverlayView : Control
 
     void Finish(CaptureResult? r)
     {
+        Log.Write($"overlay: {(r is null ? "cancelled" : $"{r.Action} {r.Region}")}");
         _result.TrySetResult(r);
         Done?.Invoke();
     }
@@ -199,6 +209,7 @@ sealed class OverlayView : Control
     {
         if (!_dragging) return;
         _dragging = false;
+        Log.Write($"overlay: released, selection {_selection}");
         SetSelection(_selection is { Width: >= 2, Height: >= 2 } ? _selection : null);
     }
 
@@ -210,7 +221,7 @@ sealed class OverlayView : Control
         {
             case Key.Escape: Finish(null); break;
             case Key.Enter: Confirm(CaptureAction.Save); break;
-            case Key.C when e.KeyModifiers.HasFlag(KeyModifiers.Control): Confirm(CaptureAction.Copy); break;
+            case Key.C when e.KeyModifiers.HasFlag(Keys.CmdModifier): Confirm(CaptureAction.Copy); break;
             case Key.E: Confirm(CaptureAction.Edit); break;
             case Key.Left: Nudge(-step, 0); break;
             case Key.Right: Nudge(step, 0); break;

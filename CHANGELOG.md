@@ -3,6 +3,18 @@
 All notable changes to StitchShot. Dates are release dates; downloads are on the
 [releases page](https://github.com/softviser/stitchshot/releases).
 
+## Unreleased
+
+### Fixed
+- macOS: the copy, save, undo and redo shortcuts in the overlay and the editor
+  now use Cmd instead of Ctrl, as the tooltips say.
+- An error while opening the editor, saving or copying from it is reported in a
+  notification and the log instead of being lost.
+
+### Changed
+- The overlay logs its window geometry, each finished selection and the chosen
+  action to the log file, to help with reports from macOS.
+
 ## 1.0.3 – 2026-11-09
 
 ### Added

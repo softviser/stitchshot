@@ -279,15 +279,26 @@ public partial class App : Application
     void OpenEditor(SKBitmap image)
     {
         // The editor's save always copies too, whatever the capture setting says: an edited image is about to be pasted somewhere.
-        var editor = new EditorWindow(image, img => { SaveAndCopy(img); if (!_settings.CopyToClipboard) _clipboard.SetImage(img); }, CopyOnly);
-        editor.Closed += (_, _) => image.Dispose();
-        editor.Show();
+        try
+        {
+            var editor = new EditorWindow(image, img => Guard(() => { SaveAndCopy(img); if (!_settings.CopyToClipboard) _clipboard.SetImage(img); }), img => Guard(() => CopyOnly(img)));
+            editor.Closed += (_, _) => image.Dispose();
+            editor.Show();
+            Log.Write($"editor shown {image.Width}x{image.Height}");
+        }
+        catch (Exception ex) { Report(ex); }
+    }
+
+    void Guard(Action action)
+    {
+        try { action(); }
+        catch (Exception ex) { Report(ex); }
     }
 
     void CopyOnly(SKBitmap bitmap)
     {
         _clipboard.SetImage(bitmap);
-        ToastWindow.Show("Copied to clipboard", "Paste it with Ctrl+V. Nothing was saved to disk.", bitmap);
+        ToastWindow.Show("Copied to clipboard", $"Paste it with {Keys.Cmd}+V. Nothing was saved to disk.", bitmap);
     }
 
     public void SaveAndCopy(SKBitmap bitmap)

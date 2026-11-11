@@ -87,11 +87,11 @@ public sealed class EditorWindow : Window
             row.Children.Add(b);
         }
         row.Children.Add(Gap());
-        row.Children.Add(IconButton.Create(IconButton.Undo, "Undo (Ctrl+Z)", _canvas.Undo));
-        row.Children.Add(IconButton.Create(IconButton.Redo, "Redo (Ctrl+Y)", _canvas.Redo));
+        row.Children.Add(IconButton.Create(IconButton.Undo, $"Undo ({Keys.Cmd}+Z)", _canvas.Undo));
+        row.Children.Add(IconButton.Create(IconButton.Redo, $"Redo ({Keys.Cmd}+Y)", _canvas.Redo));
         row.Children.Add(Gap());
-        row.Children.Add(IconButton.Create(IconButton.Save, "Save to file and copy to clipboard (Ctrl+S)", Save));
-        row.Children.Add(IconButton.Create(IconButton.Copy, "Copy to clipboard only (Ctrl+C)", () => Copy()));
+        row.Children.Add(IconButton.Create(IconButton.Save, $"Save to file and copy to clipboard ({Keys.Cmd}+S)", Save));
+        row.Children.Add(IconButton.Create(IconButton.Copy, $"Copy to clipboard only ({Keys.Cmd}+C)", () => Copy()));
         var toolbar = new Border { Background = IconButton.PanelBrush, Padding = new Thickness(6, 4), Child = row };
         SelectTool(_canvas.Tool);
         SelectColor(_canvas.Color);
@@ -195,7 +195,7 @@ public sealed class EditorWindow : Window
     {
         base.OnKeyDown(e);
         if (e.Handled || e.Source is TextBox) return;
-        bool ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        bool ctrl = e.KeyModifiers.HasFlag(Keys.CmdModifier);
         if (ctrl && e.Key == Key.Z) _canvas.Undo();
         else if (ctrl && e.Key == Key.Y) _canvas.Redo();
         else if (ctrl && e.Key == Key.S) Save();

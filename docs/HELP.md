@@ -49,7 +49,7 @@ corner so both ends can be placed precisely, and the size in pixels is shown
 above the selection. When the mouse button is released:
 
   Enter or the save icon     save a PNG and copy it to the clipboard
-  Ctrl+C or the copy icon    copy only, nothing written to disk
+  Ctrl+C or the copy icon    copy only, nothing written to disk (Cmd+C on macOS)
   E or the pencil icon       open the selection in the editor (section 5)
   Arrow keys                 move the selection by 1 px
   Shift + arrow keys         move it by 10 px
@@ -149,7 +149,7 @@ Open it with E in the overlay, the pencil icon there, or the pencil icon on a
                       C crop
   Colours             eight swatches; the ring marks the current one
   Stroke              three dots: thin 2 px, medium 4 px, thick 8 px
-  Undo / redo         Ctrl+Z / Ctrl+Y
+  Undo / redo         Ctrl+Z / Ctrl+Y (Cmd on macOS, also for the two below)
   Save                write a PNG and copy it to the clipboard (Ctrl+S)
   Copy                clipboard only (Ctrl+C)
 

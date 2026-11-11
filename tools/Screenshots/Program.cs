@@ -92,6 +92,7 @@ sealed class Shots
         about.Close();
 
         // The HUD during a session, bottom-right of the screen, with some desktop around it.
+        (settings.HudX, settings.HudY) = (1180, 700); // over the page text, so the picture is not mostly white margin
         var hud = new HudWindow(settings, () => { }, () => { }, () => { }, () => { }, () => { }, () => { });
         hud.Update(composer);
         await Show(hud);
